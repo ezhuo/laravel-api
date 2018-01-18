@@ -5,8 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
-class RouteServiceProvider extends ServiceProvider
-{
+class RouteServiceProvider extends ServiceProvider {
     /**
      * This namespace is applied to your controller routes.
      *
@@ -21,8 +20,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
         //
 
         parent::boot();
@@ -33,13 +31,15 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function map()
-    {
+    public function map() {
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
 
-        //
+        $this->mapApiPcRoutes();
+
+        $this->mapApiMobiRoutes();
+
     }
 
     /**
@@ -49,11 +49,10 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function mapWebRoutes()
-    {
+    protected function mapWebRoutes() {
         Route::middleware('web')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/web.php'));
+            ->namespace($this->namespace)
+            ->group(base_path('routes/web.php'));
     }
 
     /**
@@ -63,11 +62,26 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function mapApiRoutes()
-    {
+    protected function mapApiRoutes() {
         Route::prefix('api')
-             ->middleware('api')
-             ->namespace($this->namespace)
-             ->group(base_path('routes/api.php'));
+            ->middleware('api')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api.php'));
+    }
+
+    protected function mapApiPcRoutes() {
+        Route::prefix('api/sys/pc/v1')
+            ->middleware('api')
+            ->middleware(['before', 'monitor_pc', 'source_sys', 'after'])
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api_pc.php'));
+    }
+
+    protected function mapApiMobiRoutes() {
+        Route::prefix('api/org/mobi/v1')
+            ->middleware('api')
+            ->middleware(['before', 'monitor_mobi', 'source_org', 'after'])
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api_mobi.php'));
     }
 }

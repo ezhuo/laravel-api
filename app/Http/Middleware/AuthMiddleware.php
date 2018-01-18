@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Log;
+use Illuminate\Support\Facades\DB;
+use App\Models\Auth\Tokens;
+
+class AuthMiddleware extends BaseMiddleware {
+
+    /**
+     * 验证权限
+     * @param $request
+     * @param Closure $next
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function handle($request, Closure $next) {
+        Log::info('auth');
+        $user = null;
+        $token = $request->header('token');
+        //如果是导出的话
+        if (empty($token) && check_url_auth_list($request)) {
+            $token = $request->route()->__get('token');
+        }
+        if (!empty($token)) {
+            $user = $this->get_tokens_info($request, $token);
+            $request->__user = $user;
+        }
+//        dd($user);
+        if (empty($user) && AUTH_ENABLED) {
+            return return_json([], HTTP_NOLOGIN_MESSAGE, HTTP_NOLOGIN);
+        } else {
+            return $next($request);
+        }
+    }
+
+    protected function get_tokens_info($request, $token) {
+        $tokens = Tokens::read($token);
+        $user = null;
+        if ($tokens) {
+            $user = token_decode($tokens['token_info']);
+        }
+        return $user;
+    }
+
+    /**
+     * 获取监管用户
+     * @param $request
+     */
+    protected function get_sys_account($request, $token) {
+        return [];
+    }
+
+    /**
+     * 获取评估机构的用户
+     * @param $request
+     */
+    protected function get_org_account($request, $token) {
+        return [];
+    }
+}

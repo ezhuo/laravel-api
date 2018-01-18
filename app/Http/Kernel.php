@@ -18,6 +18,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \Illuminate\Session\Middleware\StartSession::class,
     ];
 
     /**
@@ -56,5 +57,14 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+
+        'before' => \App\Http\Middleware\BeforeMiddleware::class,
+        'after' => \App\Http\Middleware\AfterMiddleware::class,
+        'monitor_pc' => \App\Http\Middleware\MonitorPcMiddleware::class,
+        'monitor_mobi' => \App\Http\Middleware\MonitorMobiMiddleware::class,
+        'source_sys' => \App\Http\Middleware\SourceSysMiddleware::class,
+        'source_org' => \App\Http\Middleware\SourceOrgMiddleware::class,
+
+        'auth' => \App\Http\Middleware\AuthMiddleware::class,
     ];
 }
