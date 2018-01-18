@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Test;
 
 use Illuminate\Http\Request;
 use App\Models\OrgInfo;

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * 系统监管端，pc
+ * pc
  */
 
-Route::post('test/post', 'TestController@post');
-Route::resource('test', 'TestController');
+Route::post('test/post', 'Test\TestController@post');
+Route::resource('test', 'Test\TestController');
 
 //--------------------------------
 Route::get('dash/count', 'SysDashController@count');
