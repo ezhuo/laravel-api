@@ -13,7 +13,7 @@ const CACHE_EXPIRE = 60 * 24;// 单位是分钟 ，24小时
 
 const APP_CANTON_ID = 1187;
 const APP_CANTON_FDN = '0003520.0001133.0001187.';
-const APP_CANTON_NAME = '安庆市';
+const APP_CANTON_NAME = '';
 
 const APP_CANTON_LENGTH = 7;
 const APP_PERPAGE = 15;

@@ -1,16 +1,5 @@
 <?php
 
-if (!function_exists('config_path')) {
-    /**
-     * Get the configuration path.
-     * @param  string $path
-     * @return string
-     */
-    function config_path($path = '') {
-        return app()->basePath() . '/config' . ($path ? '/' . $path : $path);
-    }
-}
-
 if (!function_exists("array_column")) {
 
     function array_column($array, $column_name) {
@@ -21,11 +10,6 @@ if (!function_exists("array_column")) {
     }
 }
 
-function get_dt() {
-    return (new \DateTime("now"))
-        ->setTimezone(new \DateTimeZone('PRC'))
-        ->format('Y-m-d H:i:s');
-}
 
 /*
  * 把一个大于0的整数和，转换为二进制各位表达数的数组
@@ -44,6 +28,7 @@ function sum2array($d) {
     }
     return $a;
 }
+
 
 /**
  * 将数组转换成树
@@ -95,61 +80,6 @@ function object2array($object) {
     return @json_decode(@json_encode($object), 1);
 }
 
-function isEmpty($obj, $val) {
-    return empty($obj) ? $val : $obj;
-}
-
-function isNotEmpty($obj, $val) {
-    return !empty($obj) ? $val : $obj;
-}
-
-function isExists($is, $val) {
-    return $is ? $val : null;
-}
-
-function isImage($filename) {
-    $types = '.gif|.jpeg|.jpg|.png|.bmp';//定义检查的图片类型
-    if (file_exists($filename)) {
-        $info = getimagesize($filename);
-        $ext = image_type_to_extension($info['2']);
-        return stripos($types, $ext);
-    } else {
-        return false;
-    }
-}
-
-/**
- * 检查是数组是否为空, 空=true 不空=false
- * @param $obj
- * @param $val
- * @return bool
- */
-function check_empty($obj, $val) {
-    if (!isset($obj)) {
-        return true;
-    }
-    if (is_array($obj) || (is_object($obj) && get_class($obj) == 'Illuminate\Http\Request')) {
-        if (!isset($obj[$val])) {
-            return true;
-        }
-        if (isset($obj[$val]) && empty($obj[$val])) {
-            return true;
-        }
-    } else if (is_object($obj)) {
-        if (!isset($obj->{$val})) {
-            return true;
-        }
-        if (isset($obj->{$val}) && empty($obj->{$val})) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function check_not_empty($obj, $val) {
-    return !check_empty($obj, $val);
-//    return isset($obj[$val]);
-}
 
 /**
  * 将数据库返回数组转换为valChange类型数组
@@ -244,58 +174,4 @@ function format_excel2array($filePath = '', $sheet = 0) {
         }
     }
     return $data;
-}
-
-function parse_flog($str, $file) {
-    $file = empty($file) ? date("Y-m-d") : $file;
-    $fp_tmp = fopen("/tmp/" . $file . ".txt", "a+");
-    fputs($fp_tmp, date('Y-m-d H:i:s') . "：\n" . $str . "\n");
-    fclose($fp_tmp);
-}
-
-/**
- * 格式化时间
- * @param $min
- */
-function format_minute_cn($min) {
-    $old_times = $min;
-    $min = abs($min);
-    if ($min > 59) {
-        $times_js = $min;
-        $min = floor($times_js / 60) . '时';
-        if (($times_js % 60) > 0) {
-            $min .= ($times_js % 60) . '分';
-        }
-    } elseif ($min > 0) {
-        $min = $min . '分';
-    }
-    return ($old_times >= 0 ? $min : '-' . $min);
-}
-
-function date_add2($dt, $cnt, $unit) {
-//    dd("+" . $cnt . " " . $unit);
-    return date('Y-m-d H:i:s', strtotime("+" . $cnt . " " . $unit, strtotime($dt)));
-}
-
-function get_filename_bybrowser($filename) {
-    $my_broswer = $_SERVER['HTTP_USER_AGENT'];
-    if (!preg_match("/Firefo|Chrome|Opera|Safari/", $my_broswer)) {
-        $filename = urlencode($filename);
-        $filename = str_replace("+", "%20", $filename);
-        //      $filename=iconv('utf-8', 'gbk', $filename);//防止文件名存储时乱码
-    } else {
-        $filename = sprintf("\"%s\"", $filename);
-    }
-    return $filename;
-}
-
-function get_dict_name($dict, $key) {
-    $result = [];
-    $keys = explode(',', $key);
-    foreach ($keys as $id) {
-        if (!empty($id) && isset($dict[$id])) {
-            $result[] = $dict[$id];
-        }
-    }
-    return implode(',', $result);
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 // 得到request参数
 function getRequestParams($request, $key_array) {
     $data = [];
@@ -121,6 +120,27 @@ function get_url_content($url, $params = array(), $type = 'POST') {
     return trim($file_contents);
 }
 
+function return_json($data = [], $msg = 'success', $http_code = HTTP_OK) {
+    $data = [
+        'data' => $data,
+        'message' => $msg,
+        'dt' => get_dt()
+    ];
+    return response($data, $http_code);
+}
+
+function return_excel($path, $title, $field, $data, $dict, $filename) {
+    return response()
+        ->view($path, [
+            'title' => $title,
+            'field' => $field,
+            'data' => $data,
+            'dict' => $dict
+        ])
+        ->header('Pragma', 'no-cache')
+        ->header('Content-type', 'application/vnd.ms-excel; charset=UTF-8')
+        ->header('Content-Disposition', 'attachment;filename=' . $filename);
+}
 
 function Output($fileContent, $showname) {
     $downloadType = "attachment";//inline内嵌显示//attachment 下载显示

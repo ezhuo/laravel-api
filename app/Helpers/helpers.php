@@ -1,25 +1,169 @@
 <?php
 
-function return_json($data = [], $msg = 'success', $http_code = HTTP_OK) {
-    $data = [
-        'data' => $data,
-        'message' => $msg,
-        'dt' => get_dt()
-    ];
-    return response($data, $http_code);
+
+if (!function_exists('config_path')) {
+    /**
+     * Get the configuration path.
+     * @param  string $path
+     * @return string
+     */
+    function config_path($path = '') {
+        return app()->basePath() . '/config' . ($path ? '/' . $path : $path);
+    }
 }
 
-function return_excel($path, $title, $field, $data, $dict, $filename) {
-    return response()
-        ->view($path, [
-            'title' => $title,
-            'field' => $field,
-            'data' => $data,
-            'dict' => $dict
-        ])
-        ->header('Pragma', 'no-cache')
-        ->header('Content-type', 'application/vnd.ms-excel; charset=UTF-8')
-        ->header('Content-Disposition', 'attachment;filename=' . $filename);
+function get_dt() {
+    return (new \DateTime("now"))
+        ->setTimezone(new \DateTimeZone('PRC'))
+        ->format('Y-m-d H:i:s');
+}
+
+function isEmpty($obj, $val) {
+    return empty($obj) ? $val : $obj;
+}
+
+function isNotEmpty($obj, $val) {
+    return !empty($obj) ? $val : $obj;
+}
+
+function isExists($is, $val) {
+    return $is ? $val : null;
+}
+
+function isImage($filename) {
+    $types = '.gif|.jpeg|.jpg|.png|.bmp';//定义检查的图片类型
+    if (file_exists($filename)) {
+        $info = getimagesize($filename);
+        $ext = image_type_to_extension($info['2']);
+        return stripos($types, $ext);
+    } else {
+        return false;
+    }
+}
+
+
+//判断是否是Eloquent ORM
+function is_orm($obj) {
+    return (is_object($obj) && method_exists($obj, 'getTable'));
+}
+
+/**
+ * 判断是否是Builder,当ORM执行过Where后，类型就会变为Builder
+ * @param $obj
+ * @return bool
+ */
+function is_builder($obj) {
+    return (is_object($obj) && method_exists($obj, 'getModel'));
+}
+
+/**
+ * 检查是数组是否为空, 空=true 不空=false
+ * @param $obj
+ * @param $val
+ * @return bool
+ */
+function check_empty($obj, $val) {
+    if (!isset($obj)) {
+        return true;
+    }
+    if (is_array($obj) || (is_object($obj) && get_class($obj) == 'Illuminate\Http\Request')) {
+        if (!isset($obj[$val])) {
+            return true;
+        }
+        if (isset($obj[$val]) && empty($obj[$val])) {
+            return true;
+        }
+    } else if (is_object($obj)) {
+        if (!isset($obj->{$val})) {
+            return true;
+        }
+        if (isset($obj->{$val}) && empty($obj->{$val})) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function check_not_empty($obj, $val) {
+    return !check_empty($obj, $val);
+//    return isset($obj[$val]);
+}
+
+function parse_flog($str, $file) {
+    $file = empty($file) ? date("Y-m-d") : $file;
+    $fp_tmp = fopen("/tmp/" . $file . ".txt", "a+");
+    fputs($fp_tmp, date('Y-m-d H:i:s') . "：\n" . $str . "\n");
+    fclose($fp_tmp);
+}
+
+/**
+ * 格式化时间
+ * @param $min
+ */
+function format_minute_cn($min) {
+    $old_times = $min;
+    $min = abs($min);
+    if ($min > 59) {
+        $times_js = $min;
+        $min = floor($times_js / 60) . '时';
+        if (($times_js % 60) > 0) {
+            $min .= ($times_js % 60) . '分';
+        }
+    } elseif ($min > 0) {
+        $min = $min . '分';
+    }
+    return ($old_times >= 0 ? $min : '-' . $min);
+}
+
+function format_image_data($imgData) {
+    if (strlen($imgData) > 10) {
+        return json_decode($imgData);
+    }
+    return null;
+}
+
+function getImagePath($imgData) {
+    $path = '';
+    $obj = format_image_data($imgData);
+    if ($obj && sizeof($obj) > 0) {
+        $path = '/' . APP_UPLOAD_DRIVER . '/' . $obj[0]->path;
+    }
+    return $path;
+}
+
+function getPdfImagePath($imgData) {
+    $path = getImagePath($imgData);
+    if (empty($path)) {
+        $path = '/assset/images/nosign.png';
+    }
+    return $path;
+}
+
+function date_add2($dt, $cnt, $unit) {
+    return date('Y-m-d H:i:s', strtotime("+" . $cnt . " " . $unit, strtotime($dt)));
+}
+
+function get_filename_bybrowser($filename) {
+    $my_broswer = $_SERVER['HTTP_USER_AGENT'];
+    if (!preg_match("/Firefo|Chrome|Opera|Safari/", $my_broswer)) {
+        $filename = urlencode($filename);
+        $filename = str_replace("+", "%20", $filename);
+        //      $filename=iconv('utf-8', 'gbk', $filename);//防止文件名存储时乱码
+    } else {
+        $filename = sprintf("\"%s\"", $filename);
+    }
+    return $filename;
+}
+
+function get_dict_name($dict, $key) {
+    $result = [];
+    $keys = explode(',', $key);
+    foreach ($keys as $id) {
+        if (!empty($id) && isset($dict[$id])) {
+            $result[] = $dict[$id];
+        }
+    }
+    return implode(',', $result);
 }
 
 /**
@@ -236,18 +380,4 @@ function token_decode($str) {
 
 function password_encode($str) {
     return md5(md5($str . APP_PASSWORD_CODE));
-}
-
-//判断是否是Eloquent ORM
-function is_orm($obj) {
-    return (is_object($obj) && method_exists($obj, 'getTable'));
-}
-
-/**
- * 判断是否是Builder,当ORM执行过Where后，类型就会变为Builder
- * @param $obj
- * @return bool
- */
-function is_builder($obj) {
-    return (is_object($obj) && method_exists($obj, 'getModel'));
 }
