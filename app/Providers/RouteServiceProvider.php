@@ -40,6 +40,7 @@ class RouteServiceProvider extends ServiceProvider {
 
         $this->mapApiMobiRoutes();
 
+        $this->mapApiWeiXinRoutes();
     }
 
     /**
@@ -83,5 +84,13 @@ class RouteServiceProvider extends ServiceProvider {
             ->middleware(['before', 'monitor_mobi', 'source_org', 'after'])
             ->namespace($this->namespace)
             ->group(base_path('routes/api_mobi.php'));
+    }
+
+    protected function mapApiWeiXinRoutes() {
+        Route::prefix('api/weixin/v1')
+            ->middleware('api')
+            ->middleware(['before', 'monitor_weixin', 'after'])
+            ->namespace($this->namespace)
+            ->group(base_path('routes/api_wx.php'));
     }
 }

@@ -43,9 +43,8 @@ class BeforeMiddleware {
             $token = $request->header('token');
             $style = $request->header('style');
             $md5_client = $request->header('validate');
-            $packet_data = file_get_contents('php://input');
+            $packet_data = $this->request_data($request);
         };
-
         if (empty($packet_data)) $packet_data = "{}";
         $md5_server = md5($style . $token . $packet_data . APP_REQUEST_CHECK_CODE);
 
@@ -58,4 +57,19 @@ class BeforeMiddleware {
         return $result;
     }
 
+    protected function request_data($request) {
+        $result = file_get_contents('php://input');
+        if (empty($result) && ($request->method() == 'GET') && ($request->header('weixin') == '10')) {
+            // 小程序 客户端
+            $data = [];
+//            $_SERVER['QUERY_STRING'] = 'code=0114g4Tm053Adr1uyTUm06xoTm04g4Tw&a=1&b=1';
+//            $_SERVER['QUERY_STRING'] = '';
+            parse_str($_SERVER['QUERY_STRING'], $data);
+            $result = json_encode($data);
+            if (empty($data)) $result = '';
+//            dd($_SERVER['QUERY_STRING']);
+//            dd($result);
+        }
+        return $result;
+    }
 }

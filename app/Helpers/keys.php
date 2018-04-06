@@ -9,6 +9,7 @@ const DB_UPDATED_AT = 'updated_at';
 const DB_ORG_ID = 'org_id';
 
 const TOKEN_EXPIRE = 60 * 60 * 3;//3小时
+const TOKEN_WEIXIN_EXPIRE = 60 * 60 * 24 * 30;//30天
 const CACHE_EXPIRE = 60 * 24;// 单位是分钟 ，24小时
 
 const APP_CANTON_ID = 1187;
@@ -109,6 +110,7 @@ const HTTP_DONE_MESSAGE = '已处理';
 const HTTP_WRONG_MESSAGE = '请求错误';
 const HTTP_WRONG_NOFOUND = '数据不存在';
 const HTTP_NOLOGIN_MESSAGE = '此帐号有可能在其它设备登录，系统将在2秒后退出！';
+const HTTP_WEIXIN_NOLOGIN_MESSAGE = '此帐号未登录';
 const HTTP_NOLOGIN_LOGINMSG = '登录失败';
 const HTTP_NOAUTH_MESSAGE = '无权限';
 const HTTP_NOFOUND_MESSAGE = '找不到请求';

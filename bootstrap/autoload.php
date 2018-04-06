@@ -21,3 +21,4 @@ require __DIR__ . '/../app/Helpers/helpers.php';
 require __DIR__ . '/../app/Helpers/array.php';
 require __DIR__ . '/../app/Helpers/map.php';
 require __DIR__ . '/../app/Helpers/request.php';
+require __DIR__ . '/../app/Helpers/weixin.php';

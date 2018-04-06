@@ -6,6 +6,8 @@ use Closure;
 use Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Auth\Tokens;
+use App\Models\Auth\WxTokens;
+use App\Models\WeiXin\WxUser;
 
 class AuthMiddleware extends BaseMiddleware {
 
@@ -19,17 +21,24 @@ class AuthMiddleware extends BaseMiddleware {
         Log::info('auth');
         $user = null;
         $token = $request->header('token');
+        $message = HTTP_NOLOGIN_MESSAGE;
         //如果是导出的话
         if (empty($token) && check_url_auth_list($request)) {
             $token = $request->route()->__get('token');
         }
         if (!empty($token)) {
-            $user = $this->get_tokens_info($request, $token);
+            if ($request->__monitor == 'weixin') {
+                // 小程序客户端
+                $message = HTTP_WEIXIN_NOLOGIN_MESSAGE;
+                $user = $this->get_weixin_user($request, $token);
+            } else {
+                $user = $this->get_tokens_info($request, $token);
+            }
             $request->__user = $user;
         }
 //        dd($user);
         if (empty($user) && AUTH_ENABLED) {
-            return return_json([], HTTP_NOLOGIN_MESSAGE, HTTP_NOLOGIN);
+            return return_json([], $message, HTTP_NOLOGIN);
         } else {
             return $next($request);
         }
@@ -58,5 +67,15 @@ class AuthMiddleware extends BaseMiddleware {
      */
     protected function get_org_account($request, $token) {
         return [];
+    }
+
+    protected function get_weixin_user($request, $token) {
+        $tokens = WxTokens::read($token);
+        $user = null;
+        if ($tokens) {
+            $openid = $tokens->openid;
+            $user = WxUser::find($openid);
+        }
+        return $user;
     }
 }
