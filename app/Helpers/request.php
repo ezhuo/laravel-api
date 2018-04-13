@@ -75,18 +75,16 @@ function make_post($url, $params, $type = 'POST') {
     return trim($body);
 }
 
-function get_url_content($url, $params = array(), $type = 'POST') {
-    $timeout = 3;//curl超时时间
+function get_url_content($url, $params = [], $type = 'POST') {
     Log::info($url);
     $strCookie = isset($params['sid']) ? "PHPSESSID=" . $params['sid'] : "";
     if (function_exists('curl_init')) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20); //单位：秒 超时时间
         curl_setopt($ch, CURLOPT_HEADER, 0);//array('Content-type: text/json')
         curl_setopt($ch, CURLOPT_COOKIE, $strCookie);
-        //curl_setopt($ch, CURLOPT_POST,true);
         switch ($type) {
             case "GET" :
                 curl_setopt($ch, CURLOPT_HTTPGET, true);
@@ -116,7 +114,7 @@ function get_url_content($url, $params = array(), $type = 'POST') {
     }
     //$file_contents=  str_replace("&lt;","<",$file_contents);
     //$file_contents=  str_replace("&gt;",">",$file_contents);
-    Log::info($file_contents);
+//    Log::info($file_contents);
     return trim($file_contents);
 }
 

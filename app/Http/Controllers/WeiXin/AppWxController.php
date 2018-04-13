@@ -90,21 +90,23 @@ class AppWxController extends AppDataController {
      * @param  [type]                   $data [description]
      * @return [type]                         [description]
      */
-    private function httpRequest($url, $data = null) {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        if (!empty($data)) {
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        }
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($curl);
+    private function httpRequest($url, $data = []) {
+//        $curl = curl_init();
+//        curl_setopt($curl, CURLOPT_URL, $url);
+//        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+//        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+//        if (!empty($data)) {
+//            curl_setopt($curl, CURLOPT_POST, 1);
+//            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+//        }
+//        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+//        Log::info("URL:" . $url);
+//        $output = curl_exec($curl);
+        $output = get_url_content($url, $data, 'GET');
         if ($output === FALSE) {
             return false;
         }
-        curl_close($curl);
+//        curl_close($curl);
         return json_decode($output, JSON_UNESCAPED_UNICODE);
     }
 
