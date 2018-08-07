@@ -91,4 +91,17 @@ class CantonController extends AppDataController {
         return true;
     }
 
+    public function getSelectTree(Request $request) {
+        $fdn = $request['fdn'];
+        $id = 0;
+        $rootid = 3520;
+        if (!empty($fdn)) {
+            $arr = explode('.', $fdn);
+            $id = (int)$arr[sizeof($arr) - 2];
+            $rootid = $id;
+        }
+        $data = $this->model->canton_selectTree($request, $fdn, $id);
+        $data = getTree($data, $rootid, 'id', 'parent_id', 'children');
+        return return_json($data);
+    }
 }

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Frame\Base;
 use Illuminate\Validation\Rule;
 use Log;
+use Storage;
 use Illuminate\Support\Facades\Route;
 use App\Models\Data\SysSetting;
 use App\Models\Data\DictSetting;
@@ -326,16 +327,16 @@ class AppBaseController extends BaseController {
             //获取数据个数
             $data['total'] = $this->get_data_count($request, $dataset);
 
-            //数据导出判断
+            // 数据导出判断
             $is_export = $this->check_export_data($request, $dataset, $data['total']);
             if ($is_export == -1) {
                 return return_json($data, '当前数据共有' . $data['total'] . '条记录，超出了最大为' . EXPORT_MAX_COUNT . '条限制，导出失败，操作将终止！', HTTP_VALIDATE);
             } else if ($is_export == 1) {
-                //获取数据导出
+                // 获取数据导出
                 return $this->get_export_data($request, $dataset, $where);
             } else if (isset($request[TREE_HTTP_CODE]) && !empty($request[TREE_HTTP_CODE])) {
-                //tree数据
-                $data['list'] = $this->get_tree_data($request, $dataset, $where);
+                // tree数据
+                $data['list'] = $this->get_tree_data($request, $dataset, $where , $fields);
             }
 
             //获取数据列表
@@ -721,9 +722,9 @@ class AppBaseController extends BaseController {
      * @param bool $is_array
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    protected function get_tree_data($request, $dataset, $where = []) {
+    protected function get_tree_data($request, $dataset, $where = [] , $fields = []) {
         //获取数据列表
-        return [];
+        return $this->get_data_load($request,$dataset,$where , $fields , true);
     }
 
     // ----------------------------------------------------------
@@ -995,6 +996,46 @@ class AppBaseController extends BaseController {
         $con = explode('\\', $class);
         $class = array_pop($con);
         return ['controller' => $class, 'method' => $method];
+    }
+
+    protected function UploadFile($request, $file) {
+        $result = [];
+        $file = $request->file($file);
+        // 文件是否上传成功
+        if ($file->isValid()) {
+            // 获取文件相关信息
+            $originalName = $file->getClientOriginalName(); // 文件原名
+            $ext = $file->getClientOriginalExtension();     // 扩展名
+            $realPath = $file->getRealPath();   //临时文件的绝对路径
+            $size = $file->getClientSize();
+
+            $type = $file->getClientMimeType();     // image/jpeg
+            $arr = explode('/', $type);
+            $ext = $arr[sizeof($arr) - 1];
+            if (strlen($ext) > 4) {
+                $arr = explode('.', $originalName);
+                $ext = $arr[sizeof($arr) - 1];
+            }
+
+            // 上传文件
+            $realname = time() . '_' . mt_rand() . "." . $ext;
+            $filename = date('Y-m-d') . "/" . $realname;
+//                $filename = date('Y-m-d') . "/" . uniqid() . "." . $ext;
+
+            // 使用我们新建的uploads本地存储空间（目录）
+            $bool = Storage::disk(APP_UPLOAD_DRIVER)->put($filename, file_get_contents($realPath));
+            if ($bool) {
+                $result = [
+                    'url' => $filename,
+                    'fileName' => $realname,
+                    'type' => $type,
+                    'size' => $size,
+                    'status' => 1,
+                    'dt' => get_dt()
+                ];
+            }
+        }
+        return $result;
     }
 
 }

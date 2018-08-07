@@ -36,6 +36,7 @@ Route::resource('logs', 'Data\SysLogsController');
 Route::resource('syssetting', 'Data\SysSettingController');
 
 Route::get('canton/selectselectselect/{id}', 'Data\CantonController@get_selectselectselect');
+Route::get('canton/selectTree', 'Data\CantonController@getSelectTree');
 Route::resource('canton', 'Data\CantonController');
 
 Route::get('sysdic/tree/{id}', 'Data\SysDicController@tree');

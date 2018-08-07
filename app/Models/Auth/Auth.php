@@ -45,7 +45,7 @@ class Auth extends Data {
         if (!empty($account->canton_fdn)) {
             $account->canton_name = Canton::get_name_byfdn($account->canton_fdn);
         }
-        return ['account' => $account, 'code' => 200];
+        return ['account' => $account, 'code' => HTTP_OK];
     }
 
     public static function login_pc_org($request) {

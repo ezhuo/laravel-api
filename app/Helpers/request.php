@@ -190,12 +190,12 @@ function pushMsg_JPush($tag, $msg) {
  */
 function request_page($request) {
     $result = [];
-    if (check_not_empty($request, 'page')) {
-        $page = intval($request['page']);
+    if (check_not_empty($request, APP_PAGE)) {
+        $page = intval($request[APP_PAGE]);
         $page = $page - 1;
         $pageSize = DB_PAGE_SIZE;
-        if (check_not_empty($request, 'pageSize'))
-            $pageSize = intval($request['pageSize']);
+        if (check_not_empty($request, APP_PAGE_SIZE))
+            $pageSize = intval($request[APP_PAGE_SIZE]);
 
         $page = ($page < 0 ? 0 : $page) * $pageSize;
         $result['page'] = $page;

@@ -85,6 +85,30 @@ class Canton extends Data {
         return $data;
     }
 
+    public function canton_selectTree($request, $fdn, $id) {
+        $cache_key = __FUNCTION__ . $fdn;
+        $data = S($cache_key);
+        if (empty($data)) {
+            $res = Canton::select([
+                DB::raw("fdn as value"),
+                DB::raw("name as label"),
+                DB::raw("canton_id as id"),
+                DB::raw("parent_id"),
+            ]);
+            if (empty($fdn)) {
+                $res = $res->whereRaw(" LENGTH(fdn) <= 32 and is_del = 0 ");
+            } else {
+                $res = $res
+                    ->where('fdn', 'like', $fdn . '%')
+                    ->where('canton_id', '<>', $id)
+                    ->where(['is_del' => 0]);
+            }
+            $data = $res->orderBy('fdn')->get()->toArray();
+            S($cache_key, $data, 60 * 24 * 7);
+        }
+        return $data;
+    }
+
     public static function get_name_byfdn($fdn) {
         $obj = Canton::where(['fdn' => $fdn])->first(['name', 'text_name']);
         if ($obj) {

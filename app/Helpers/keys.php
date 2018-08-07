@@ -17,11 +17,13 @@ const APP_CANTON_FDN = '0003520.0001133.0001187.';
 const APP_CANTON_NAME = '';
 
 const APP_CANTON_LENGTH = 7;
-const APP_PERPAGE = 15;
+const APP_PERPAGE = DB_PAGE_SIZE;
 const APP_UPLOAD_DRIVER = "uploads";
 const APP_TOKEN_CODE = 'EZHUO@2017';
 const APP_REQUEST_CHECK_CODE = 'ezhuo@20161016';
 const APP_PASSWORD_CODE = 'ezhuo@cn';
+const APP_PAGE = 'pi';
+const APP_PAGE_SIZE = 'ps';
 
 const EXPORT_HTTP_CODE = ['exports', 'exports2'];
 const EXPORT_MAX_COUNT = 20001;

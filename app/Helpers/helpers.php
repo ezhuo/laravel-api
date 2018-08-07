@@ -284,7 +284,7 @@ function getTree($data, $pid = 0, $key = 'id', $pKey = 'parentId', $childKey = '
 //     	echo "<pre>";print_r($rv[$pKey]);exit;
         if ($rv[$pKey] == $pid) {
             $rv[$childKey] = getTree($data, $rv[$key], $key, $pKey, $childKey, $maxDepth);
-            //if( count($rv[$childKey])==0 )    unset($rv[$childKey]);
+            if( count($rv[$childKey])==0 )    unset($rv[$childKey]);
             $tree[] = $rv;
         }
     }
