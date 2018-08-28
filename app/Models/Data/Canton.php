@@ -5,7 +5,8 @@ namespace App\Models\Data;
 use Illuminate\Support\Facades\DB;
 use App\Models\Frame\Data;
 
-class Canton extends Data {
+class Canton extends Data
+{
     protected $table = DB_PREFIX . 'sys_canton';
     protected $hidden = ['create_time'];
     protected $primaryKey = 'canton_id';
@@ -25,16 +26,18 @@ class Canton extends Data {
         "create_time"
     ];
 
-    public function __construct(array $attributes = []) {
+    public function __construct(array $attributes = [])
+    {
         parent::__construct($attributes);
         return;
     }
 
-    public function canton_data($request) {
+    public function canton_data($request)
+    {
         $cur_fdn = APP_CANTON_FDN;
         $cur_id = APP_CANTON_ID;
 
-        if ($request->__user->canton_fdn) {
+        if (property_exists($request->__user, 'canton_fdn')) {
             $cur_fdn = $request->__user->canton_fdn;
             $tmp = explode('.', $cur_fdn);
             $cur_id = intval($tmp[count($tmp) - 2]);
@@ -57,13 +60,14 @@ class Canton extends Data {
                     DB::raw("name as text"), "fdn", "text_name"
                 ])
                 ->orderBy('fdn')
-                ->get();
+                ->get()->toArray();
             S($cache_key, $result);
         }
         return $result;
     }
 
-    public function canton_selectselectselect($request, $id) {
+    public function canton_selectselectselect($request, $id)
+    {
         $cache_key = __FUNCTION__ . $id;
         $data = S($cache_key);
         if (empty($data)) {
@@ -85,13 +89,15 @@ class Canton extends Data {
         return $data;
     }
 
-    public function canton_selectTree($request, $fdn, $id) {
-        $cache_key = __FUNCTION__ . $fdn;
+    public function canton_selectTree($request, $fdn, $id, $label = 'label')
+    {
+        if (empty($label)) $label = 'label';
+        $cache_key = __FUNCTION__ . $fdn . $label;
         $data = S($cache_key);
         if (empty($data)) {
             $res = Canton::select([
                 DB::raw("fdn as value"),
-                DB::raw("name as label"),
+                DB::raw("name as " . $label),
                 DB::raw("canton_id as id"),
                 DB::raw("parent_id"),
             ]);
@@ -109,7 +115,8 @@ class Canton extends Data {
         return $data;
     }
 
-    public static function get_name_byfdn($fdn) {
+    public static function get_name_byfdn($fdn)
+    {
         $obj = Canton::where(['fdn' => $fdn])->first(['name', 'text_name']);
         if ($obj) {
             return $obj->name;
@@ -117,7 +124,8 @@ class Canton extends Data {
         return null;
     }
 
-    public static function get_id_byfdn($fdn) {
+    public static function get_id_byfdn($fdn)
+    {
         $obj = Canton::where(['fdn' => $fdn])->first(['canton_id']);
         if ($obj) {
             return $obj->canton_id;

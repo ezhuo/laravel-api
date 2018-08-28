@@ -61,7 +61,7 @@ class Kernel extends HttpKernel
         'before' => \App\Http\Middleware\BeforeMiddleware::class,
         'after' => \App\Http\Middleware\AfterMiddleware::class,
         'monitor_pc' => \App\Http\Middleware\MonitorPcMiddleware::class,
-        'monitor_mobi' => \App\Http\Middleware\MonitorMobiMiddleware::class,
+        'monitor_app' => \App\Http\Middleware\MonitorAppMiddleware::class,
         'monitor_weixin' => \App\Http\Middleware\MonitorWeiXinMiddleware::class,
 
         'source_sys' => \App\Http\Middleware\SourceSysMiddleware::class,

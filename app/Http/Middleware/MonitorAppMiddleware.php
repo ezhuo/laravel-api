@@ -6,7 +6,7 @@ use Closure;
 use Log;
 use Illuminate\Support\Facades\DB;
 
-class MonitorMobiMiddleware extends BaseMiddleware {
+class MonitorAppMiddleware extends BaseMiddleware {
     /**
      * Handle an incoming request.
      *
@@ -16,7 +16,7 @@ class MonitorMobiMiddleware extends BaseMiddleware {
      */
     public function handle($request, Closure $next) {
         $request = parent::handle($request, $next);
-        $request->__monitor = 'mobi';
+        $request->__monitor = 'app';
         return $next($request);
     }
 }

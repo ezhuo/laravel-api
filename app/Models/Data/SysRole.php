@@ -4,7 +4,8 @@ namespace App\Models\Data;
 
 use App\Models\Frame\Data;
 
-class SysRole extends Data {
+class SysRole extends Data
+{
     protected $table = DB_PREFIX . 'sys_role';
     protected $primaryKey = 'role_id';
     protected $dict_value = 'name';
@@ -23,14 +24,14 @@ class SysRole extends Data {
         ]
     ];
 
-    public function __construct(array $attributes = []) {
+    public function __construct(array $attributes = [])
+    {
         parent::__construct($attributes);
         return;
     }
 
-    public function get_order_field() {
+    public function get_order_field()
+    {
         return ['role_id' => 'asc'];
     }
-
-
 }

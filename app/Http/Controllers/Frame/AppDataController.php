@@ -152,10 +152,8 @@ class AppDataController extends AppBaseController {
             //民政机构和养老机构-----------------------
             case 'sys':
                 if (!$request->__user->admin) {
-                    if (!empty($request->__user->resthome_id)) {
-                        $where['eq']['resthome_id'] = $request->__user->resthome_id;
-                    } else {
-                        $where['like']['canton_fdn'] = $request->__user->canton_fdn . '%';
+                    if (!empty($request->__user->org_id)) {
+                        $where['eq']['org_id'] = $request->__user->org_id;
                     }
                 }
                 break;

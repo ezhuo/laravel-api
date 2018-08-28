@@ -8,75 +8,50 @@ use App\Models\Data\SysRole;
 use DB;
 use App\Http\Controllers\Frame\AppDataController;
 
-class SysMenuController extends AppDataController {
+class SysMenuController extends AppDataController
+{
 
-    public function __construct(Request $request, SysMenu $model) {
+    public function __construct(Request $request, SysMenu $model)
+    {
         parent::__construct($request, $model);
         $this->middleware('auth');
     }
 
-    protected function get_where($request, $dataset) {
+    protected function get_where($request, $dataset)
+    {
         $map = parent::get_where($request, $dataset);
         $map['eq']['status'] = 1;
         return $map;
     }
 
-    public function get_menu_list(Request $request) {
+    public function get_menu_list(Request $request)
+    {
         $role_id = $request['role_id'];
-        $ids = null;
-        $where_ids = '0';
 
+        $ids = null;
         if ($role_id) {
             $ids = SysRole::find($role_id);
             if ($ids) {
                 $ids = $ids->menu_ids;
             }
         }
-        if ($ids) {
-            $where_ids = " menu_id in ($ids) ";
-        }
 
-        $sql = "
-            select a.menu_id as id,fdn,title as text , b.selected  from
-	          ( select * from sys_menu where `STATUS` = 1 ) a
-	              LEFT join ( select menu_id , 'selected' as selected from sys_menu where $where_ids and  `STATUS` = 1 ) b
-		            ON  a.menu_id = b.menu_id  order by idx,fdn
-        ";
+        if ($ids)
+            $ids = explode(',', $ids);
 
-//        die($sql);
+        $sql = "select menu_id as `key` , fdn , parent_id , title  from sys_menu where `status` = 1 order by idx,fdn";
+
         $arr = DB::select($sql);
         $arr = object2array($arr);
 
-        $result = array();
-        foreach ($arr as $val) {
-            $tmp = explode('.', $val['fdn']);
-            if (sizeof($tmp) == 2) {
-                $val['type'] = 'root';
-                $result[$val['fdn']] = $val;
-            } else if (sizeof($tmp) == 3) {
-
-                if (isset($result[$tmp[0] . "."])) {
-                    $result[$tmp[0] . "."]['children'][$val['fdn']] = $val;
-                }
-            } else if (sizeof($tmp) == 4) {
-                if (isset($result[$tmp[0] . "."]['children'][$tmp[0] . "." . $tmp[1] . "."])) {
-                    $result[$tmp[0] . "."]['children'][$tmp[0] . "." . $tmp[1] . "."]['children'][$val['fdn']] = $val;
-                }
+        $treeData = getTree($arr, 0, 'key', 'parent_id', 'children');
+        $selData = [];
+        if ($ids) {
+            foreach ($ids as $val) {
+                $selData[] = intval($val);
             }
         }
-
-        return return_json($this->tree_data($result), '');
-    }
-
-    private function tree_data($arr) {
-        $result = array();
-        foreach ($arr as $val) {
-            if (!empty($val['children'])) {
-                $val['children'] = array_values($this->tree_data($val['children']));
-            }
-            $result[] = $val;
-        }
-        return $result;
+        return return_json(['list' => $treeData, 'sel' => $selData], '');
     }
 
 }

@@ -38,7 +38,7 @@ class RouteServiceProvider extends ServiceProvider {
 
         $this->mapApiPcRoutes();
 
-        $this->mapApiMobiRoutes();
+        $this->mapApiAppRoutes();
 
         $this->mapApiWeiXinRoutes();
     }
@@ -78,12 +78,12 @@ class RouteServiceProvider extends ServiceProvider {
             ->group(base_path('routes/api_pc.php'));
     }
 
-    protected function mapApiMobiRoutes() {
-        Route::prefix('api/org/mobi/v1')
+    protected function mapApiAppRoutes() {
+        Route::prefix('api/org/app/v1')
             ->middleware('api')
-            ->middleware(['before', 'monitor_mobi', 'source_org', 'after'])
+            ->middleware(['before', 'monitor_app', 'source_org', 'after'])
             ->namespace($this->namespace)
-            ->group(base_path('routes/api_mobi.php'));
+            ->group(base_path('routes/api_app.php'));
     }
 
     protected function mapApiWeiXinRoutes() {

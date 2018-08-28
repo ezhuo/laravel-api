@@ -24,11 +24,11 @@ class FileController extends AppDataController {
         $return = [];
         $http_code = HTTP_WRONG;
         if ($request->isMethod('post')) {
-            $return = $this->UploadFile($request, 'file');
+            $return = $this->uploadFile($request, 'file');
         }
         if (!empty($return)) {
             $result = $return;
-            $result['uid'] = $return['fileName'];
+            $result['uid'] = $return['name'];
             $http_code = HTTP_OK;
         } else {
             $result['response'] = 'error';
@@ -44,12 +44,12 @@ class FileController extends AppDataController {
             ]
         ];
         if ($request->hasFile('upload')) {//upload为ckeditor默认的file提交ID
-            $return = $this->UploadFile($request, 'upload');
+            $return = $this->uploadFile($request, 'upload');
         }
         if (!empty($return)) {
             $result = [
                 "uploaded" => 1,
-                "fileName" => $return['fileName'],
+                "fileName" => $return['name'],
                 "url" => '/file/show/' . $return['url'],
             ];
         } else {

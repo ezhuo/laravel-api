@@ -47,5 +47,12 @@ class IndexController extends AppDataController {
 
     }
 
-
+    public function userStatusQuery(Request $request) {
+//        $res = http_post_iot('userStatusQuery', ['msisdn' => '1440167311753']);
+//        $res = http_post_iot('onlineGPRSRealQuery', ['msisdn' => '1440167311753']);
+//        $res = http_post_iot('onAndOffInfoQuery', ['msisdn' => '1440167311753']);
+//        $res = http_post_iot('userPkgListQuery', ['msisdn' => '1440167311753']);
+        $res = http_post_iot('balanceRealSingle', ['card_info' => ['1440167311753', '1440167312150'], 'type' => 0]);
+        dd($res);
+    }
 }

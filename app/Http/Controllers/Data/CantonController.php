@@ -7,26 +7,30 @@ use Illuminate\Http\Request;
 use DB;
 use App\Http\Controllers\Frame\AppDataController;
 
-class CantonController extends AppDataController {
-    public function __construct(Request $request, Canton $model) {
+class CantonController extends AppDataController
+{
+    public function __construct(Request $request, Canton $model)
+    {
         parent::__construct($request, $model);
         $this->middleware('auth', ['except' => ['get_selectselectselect']]);
     }
 
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $data['list'] = $this->model->canton_data($request);
         $data['count'] = count($data['list']);
-//        dd( $data['list'] );
         return return_json($data);
     }
 
-    public function get_selectselectselect(Request $request, $id) {
+    public function get_selectselectselect(Request $request, $id)
+    {
         $data = $this->model->canton_selectselectselect($request, $id);
         return return_json($data);
     }
 
 
-    public function destroy(Request $request, $id) {
+    public function destroy(Request $request, $id)
+    {
         $http_code = HTTP_WRONG;
         $num = 0;
         if (empty($id)) {
@@ -36,13 +40,16 @@ class CantonController extends AppDataController {
         if (!empty($dataset)) {
             $num = DB::delete("delete from " . $this->model_table . " where fdn like ? ", [$dataset->fdn . "%"]);
             $http_code = ($num ? HTTP_OK : HTTP_WRONG);
-            if ($num) canton_cache_clear();
+            if ($num) {
+                canton_cache_clear();
+            }
             return return_json(['result' => $num], ($http_code == HTTP_OK ? "删除成功" : "删除失败"), $http_code);
         }
         return return_json(null, "未找到要删除的数据！", HTTP_WRONG);
     }
 
-    protected function after_update($request, $dataset, $id) {
+    protected function after_update($request, $dataset, $id)
+    {
         $pk = $this->model_key;
         $canton_id = $id;
         if ((!empty($dataset->parent_id)) && (!empty($canton_id))) {
@@ -61,7 +68,8 @@ class CantonController extends AppDataController {
         return true;
     }
 
-    protected function after_store($request, $dataset, $id) {
+    protected function after_store($request, $dataset, $id)
+    {
         $pk = $this->model_key;
         $canton_id = $id;
         if (empty($dataset->parent_id)) {
@@ -91,8 +99,10 @@ class CantonController extends AppDataController {
         return true;
     }
 
-    public function getSelectTree(Request $request) {
+    public function getSelectTree(Request $request)
+    {
         $fdn = $request['fdn'];
+        $label = $request['label'];
         $id = 0;
         $rootid = 3520;
         if (!empty($fdn)) {
@@ -100,8 +110,8 @@ class CantonController extends AppDataController {
             $id = (int)$arr[sizeof($arr) - 2];
             $rootid = $id;
         }
-        $data = $this->model->canton_selectTree($request, $fdn, $id);
+        $data = $this->model->canton_selectTree($request, $fdn, $id, $label);
         $data = getTree($data, $rootid, 'id', 'parent_id', 'children');
-        return return_json($data);
+        return return_json($data, '');
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Test;
 
 use Illuminate\Http\Request;
-use App\Models\OrgInfo;
+use App\Models\Scope\OrgInfo;
 use App\Http\Controllers\Frame\AppDataController;
 
 class TestController extends AppDataController {

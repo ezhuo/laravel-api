@@ -137,7 +137,7 @@ function arrayToArrayByType($arr) {
         if (check_empty($result, $v->type)) {
             $result[$v->type] = [];
         }
-        $result[$v->type][] = ['key' => $v->code, 'val' => $v->name];
+        $result[$v->type][] = ['label' => $v->name, 'value' => $v->code];
     }
     return $result;
 }

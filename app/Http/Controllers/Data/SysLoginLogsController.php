@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Data;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Data\SysLogs;
+use App\Models\Data\SysLoginLogs;
 use App\Http\Controllers\Frame\AppDataController;
 
-class SysLogsController extends AppDataController
+class SysLoginLogsController extends AppDataController
 {
-
-    public function __construct(Request $request, SysLogs $model)
+    public function __construct(Request $request, SysLoginLogs $model)
     {
         parent::__construct($request, $model);
         $this->middleware('auth');
@@ -44,8 +43,8 @@ class SysLogsController extends AppDataController
             $dt = $request['created_at'];
             $dt = explode(',', $dt);
             unset($request['created_at']);
-            $request['egt_created_at'] = $dt[0];
-            $request['elt_created_at'] = $dt[1];
+            $request['egt_created_at'] = date('Y-m-d', strtotime($dt[0]));
+            $request['elt_created_at'] = date('Y-m-d', strtotime($dt[1]));
         }
 
         return parent::index($request);

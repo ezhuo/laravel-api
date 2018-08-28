@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Scope;
 
 use App\Models\ViewOrderProcessInfo;
-use App\Models\OrgInfo;
+use App\Models\Scope\OrgInfo;
 use App\Models\ResthomeInfo;
 use Illuminate\Http\Request;
 use DB;

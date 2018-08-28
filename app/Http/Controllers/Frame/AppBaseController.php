@@ -336,7 +336,7 @@ class AppBaseController extends BaseController {
                 return $this->get_export_data($request, $dataset, $where);
             } else if (isset($request[TREE_HTTP_CODE]) && !empty($request[TREE_HTTP_CODE])) {
                 // tree数据
-                $data['list'] = $this->get_tree_data($request, $dataset, $where , $fields);
+                $data['list'] = $this->get_tree_data($request, $dataset, $where, $fields);
             }
 
             //获取数据列表
@@ -722,9 +722,14 @@ class AppBaseController extends BaseController {
      * @param bool $is_array
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    protected function get_tree_data($request, $dataset, $where = [] , $fields = []) {
+    protected function get_tree_data($request, $dataset, $where = [], $fields = []) {
         //获取数据列表
-        return $this->get_data_load($request,$dataset,$where , $fields , true);
+        $arr = $this->get_data_load($request, $dataset, $where, $fields, true);
+        $rootid = 0;
+        if (!empty($arr)) {
+            $rootid = $arr[0]['parent_id'];
+        }
+        return getTree($arr, $rootid, $this->model->get_dict_key(), 'parent_id', 'children');
     }
 
     // ----------------------------------------------------------
@@ -745,12 +750,19 @@ class AppBaseController extends BaseController {
     }
 
     //获取数据字典
-    protected function __index_dict(Request $request, $p_field = [], $p_where = []) {
+    protected function __index_dict(Request $request, $p_field = [], $p_where = [], $p_dict_display = []) {
+        if (empty($p_dict_display)) {
+            $p_dict_display['value'] = 'value';
+            $p_dict_display['label'] = 'label';
+        }
         $vv = $this->model->get_dict_value();
         if (is_array($vv)) {
             $field = array_merge([$this->model->get_dict_key()], $vv);
         } else {
-            $field = [$this->model->get_dict_key(), $vv];
+            $field = [
+                DB::raw($this->model->get_dict_key() . ' as ' . '`' . $p_dict_display['value'] . '`'),
+                DB::raw($vv . ' as ' . '`' . $p_dict_display['label'] . '`')
+            ];
         }
         $field = array_merge($field, $p_field);
         $where = ['limit' => ['page' => 0, 'size' => 10000]];
@@ -998,7 +1010,7 @@ class AppBaseController extends BaseController {
         return ['controller' => $class, 'method' => $method];
     }
 
-    protected function UploadFile($request, $file) {
+    protected function uploadFile($request, $file) {
         $result = [];
         $file = $request->file($file);
         // 文件是否上传成功
@@ -1027,7 +1039,7 @@ class AppBaseController extends BaseController {
             if ($bool) {
                 $result = [
                     'url' => $filename,
-                    'fileName' => $realname,
+                    'name' => $realname,
                     'type' => $type,
                     'size' => $size,
                     'status' => 1,

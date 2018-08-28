@@ -6,9 +6,9 @@ use App\Models\Frame\Data;
 use Log;
 use Illuminate\Support\Facades\Request;
 
-class SysLogs extends Data {
+class SysLoginLogs extends Data {
 
-    protected $table = DB_PREFIX . 'base_operation_log';
+    protected $table = DB_PREFIX . 'base_operation_login_log';
     protected $fillable = [
         "title",
         "content",
@@ -31,7 +31,7 @@ class SysLogs extends Data {
     }
 
     public static function write($request, $title, $content = '进入') {
-        $model = new SysLogs();
+        $model = new SysLoginLogs();
         $model->title = $title;
         $model->content = $content;
         $model->other_info = $request['other_info'];
