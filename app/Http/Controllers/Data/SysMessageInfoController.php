@@ -16,7 +16,6 @@ class SysMessageInfoController extends AppDataController {
 
     protected function get_where($request, $dataset) {
         $where = parent::get_where($request, $dataset);
-        $where = $this->get_default_where($request, $where);
         $where['eq']['role_id'] = $request->__user->role_id;
         return $where;
     }

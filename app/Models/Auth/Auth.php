@@ -33,8 +33,8 @@ class Auth extends Data
 
         $account = DB::table(DB_PREFIX . 'sys_account')->where($where)
             ->first([
-                "account_id as id", "login_username", "true_name", "phone", "email",
-                "role_id", "org_id", "group_ids", "group_names", "images"
+                'account_id as id', 'login_username', 'true_name', 'phone', 'email',
+                'role_id', 'org_id', 'group_ids', 'group_names', 'images'
             ]);
         if (empty($account)) {
             return ['account' => $account, 'code' => 202];
@@ -51,6 +51,8 @@ class Auth extends Data
             $orgObj = OrgInfo::find($account->org_id);
             if ($orgObj) {
                 $account->org_name = $orgObj->org_corpname;
+                $account->org_fdn = $orgObj->org_fdn;
+                $account->is_group = $orgObj->is_group;
             }
         };
         $account->admin = ($account->role_id == '1');
@@ -73,11 +75,11 @@ class Auth extends Data
 
         $account = DB::table(DB_PREFIX . 'org_account')->where($where)->whereIn('status', ['10', '20', '30'])
             ->first([
-                "org_account_id as id", "org_id", "org_fdn",
-                "dept_id", "dept_fdn", "group_id", "group_fdn",
-                "canton_id", "canton_fdn",
-                "mobi", "true_name", "email",
-                "role_id", "images",
+                'org_account_id as id', 'org_id', 'org_fdn',
+                'dept_id', 'dept_fdn', 'group_id', 'group_fdn',
+                'canton_id', 'canton_fdn',
+                'mobi', 'true_name', 'email',
+                'role_id', 'images',
             ]);
         if (empty($account)) {
             return ['account' => $account, 'code' => 202];

@@ -33,9 +33,8 @@ class OrgInfoController extends AppDataController
     protected function get_where($request, $dataset)
     {
         $where = parent::get_where($request, $dataset);
-        $where = $this->get_default_where($request, $where);
         if ($request['org_fdn%']) {
-            $where['dataset'] = $where['dataset']->whereRaw($this->model_table . ".fdn like ?", [$request['org_fdn%'] . '%']);
+            $where['dataset'] = $where['dataset']->whereRaw($this->model_table . ".org_fdn like ?", [$request['org_fdn%'] . '%']);
         }
         $where['join'] = [
             [
@@ -73,9 +72,9 @@ class OrgInfoController extends AppDataController
         if ($id) {
             $dataset = $dataset->find($id);
             if (empty($request['parent_id'])) {
-                $dataset->fdn = $dataset->org_id . '.';
+                $dataset->org_fdn = $dataset->org_id . '.';
             } else {
-                $dataset->fdn = $request['parent_id'] . '.' . $dataset->org_id . '.';
+                $dataset->org_fdn = $request['parent_id'] . '.' . $dataset->org_id . '.';
             }
             $dataset->save();
             $result = $dataset->org_init($request, $id);
@@ -88,8 +87,8 @@ class OrgInfoController extends AppDataController
         $request['tree'] = 1;
         return parent::__index_dict(
             $request,
-            [DB::Raw('org_id,' . $this->model_table . '.parent_id,' . $this->model_table . '.fdn as `key` , org_name as title')],
-            ['order' => [$this->model_table . '.fdn' => 'asc', 'org_id' => 'asc']]
+            [DB::Raw('org_id,' . $this->model_table . '.parent_id,' . $this->model_table . '.org_fdn as `key` , org_name as title')],
+            ['order' => [$this->model_table . '.org_fdn' => 'asc', 'org_id' => 'asc']]
         );
     }
 }

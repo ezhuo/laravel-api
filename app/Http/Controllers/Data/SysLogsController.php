@@ -19,22 +19,22 @@ class SysLogsController extends AppDataController
     public function get_fields($request, $dataset)
     {
         return [
-            "id",
-            "title",
-            "content",
-            "other_info",
-            "api",
-            "no_auth",
-            "ip",
-            "source",
-            "monitor",
-            // DB::raw("case source when 'sys' then '监管平台' when 'org' then '评估平台' end as source"),
-            // DB::raw("case monitor when 'pc' then 'PC端' when 'mobi' then '移动端' end as monitor"),
-            "org_fdn",
-            "org_name",
-            "creater_user_id",
-            "creater_user_name",
-            "created_at"
+            'id',
+            'title',
+            'content',
+            'other_info',
+            'api',
+            'no_auth',
+            'ip',
+            'source',
+            'monitor',
+            // DB::raw('case source when 'sys' then '监管平台' when 'org' then '评估平台' end as source'),
+            // DB::raw('case monitor when 'pc' then 'PC端' when 'mobi' then '移动端' end as monitor'),
+            'org_fdn',
+            'org_name',
+            'creater_user_id',
+            'creater_user_name',
+            'created_at'
         ];
     }
 
