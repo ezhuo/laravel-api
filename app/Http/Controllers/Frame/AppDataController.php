@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Frame;
 
-use App\Models\Frame\Base;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use App\Models\Data\SysMessageInfo;
+use App\Models\Frame\Base;
+use Illuminate\Http\Request;
 
 class AppDataController extends AppBaseController
 {
@@ -97,7 +94,6 @@ class AppDataController extends AppBaseController
         return $this->__index($request, $dataset, [], [], $id);
     }
 
-
     /**
      *  http : /DELETE/{id} , 用途：删除单个数据元
      * @param Request $request
@@ -152,7 +148,9 @@ class AppDataController extends AppBaseController
      */
     protected function get_default_where($request, $dataset, $where)
     {
-        if (empty($where)) $where = [];
+        if (empty($where)) {
+            $where = [];
+        }
 
         $current_controller = $this->getCurrentAction()['controller'];
         if (!isset($where['like'])) {
@@ -166,7 +164,7 @@ class AppDataController extends AppBaseController
         switch ($request->__user->style) {
 
             case 'sys':
-            //后台-----------------------
+                //后台-----------------------
                 if (!$request->__user->admin) {
                     $fileds = $this->get_table_fields($dataset);
                     if (!empty($request->__user->org_fdn) && in_array('org_fdn', $fileds)) {
@@ -177,8 +175,9 @@ class AppDataController extends AppBaseController
 
             case 'app':
                 //---------------------------
-                if (check_empty($request, 'org_id'))
+                if (check_empty($request, 'org_id')) {
                     $where['eq']['org_id'] = $request->__user->org_id;
+                }
 
                 break;
         }
@@ -269,13 +268,17 @@ class AppDataController extends AppBaseController
         if (isset($request['month_start'])) {
             $month_start = $request['month_start'];
         }
-        if (!empty($start)) $month_start = $start;
+        if (!empty($start)) {
+            $month_start = $start;
+        }
 
         $month_end = date('Y-m', time());
         if (isset($request['month_end'])) {
             $month_end = $request['month_end'];
         }
-        if (!empty($end)) $month_end = $end;
+        if (!empty($end)) {
+            $month_end = $end;
+        }
 
         $result = [];
         $ToStartMonth = strtotime($month_start); //转换一下
@@ -293,8 +296,37 @@ class AppDataController extends AppBaseController
         return [
             'result' => $result,
             'month_start' => $month_start,
-            'month_end' => $month_end
+            'month_end' => $month_end,
         ];
+    }
+
+    /**
+     * 请求类
+     */
+    protected function requestAHYDCommitData($action, $params)
+    {
+        $res = http_post_iot($action, $params);
+        $result = null;
+        if ($res['code'] != '00000') {
+            return ['code' => $res['code'], 'result' => ''];
+        }
+
+        $body = $res['body'];
+        if (is_string($body)) {
+            $body = json_decode($body, true);
+        }
+
+        $result = [];
+
+        Log::info(json_encode($body));
+
+        switch ($action) {
+            case 'stopRecoverCard':
+                $result = $body['oper_desc'];
+                break;
+        }
+        return ['code' => $res['code'], 'result' => $body['oper_desc']];
+        // return $result;
     }
 
 }

@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Frame;
 
-use Illuminate\Http\Request;
-use Storage;
-use Illuminate\Http\Response;
 use App\Models\Frame\Base;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class FileController extends AppDataController {
+class FileController extends AppDataController
+{
 
-    public function __construct(Request $request, Base $model) {
+    public function __construct(Request $request, Base $model)
+    {
         parent::__construct($request, $model);
         $this->middleware('auth', ['except' => ['download', 'upload_ckeditor']]);
     }
@@ -19,7 +20,8 @@ class FileController extends AppDataController {
      * @param Request $request
      * @return Response
      */
-    public function upload(Request $request) {
+    public function upload(Request $request)
+    {
         $result = [];
         $return = [];
         $http_code = HTTP_WRONG;
@@ -36,14 +38,15 @@ class FileController extends AppDataController {
         return response($result, $http_code);
     }
 
-    public function upload_ckeditor(Request $request) {
+    public function upload_ckeditor(Request $request)
+    {
         $result = [
             "uploaded" => 0,
             "error" => [
-                "message" => ""
-            ]
+                "message" => "",
+            ],
         ];
-        if ($request->hasFile('upload')) {//upload为ckeditor默认的file提交ID
+        if ($request->hasFile('upload')) { //upload为ckeditor默认的file提交ID
             $return = $this->uploadFile($request, 'upload');
         }
         if (!empty($return)) {
@@ -63,18 +66,19 @@ class FileController extends AppDataController {
      * @param Request $request
      * @return Response
      */
-    public function download(Request $request) {
+    public function download(Request $request)
+    {
 //        dump($_REQUEST);
         $f = $request["f"];
         $n = $request['n'];
 //        dd($n);
-//        die();
+        //        die();
         if (empty($f)) {
             return response("抱歉，下载非法！");
         } else {
             $f = public_path(APP_UPLOAD_DRIVER) . '/' . $f;
 //            $f = base_path(APP_UPLOAD_DRIVER) . '/' . $f;
-//            $f = app_path(APP_UPLOAD_DRIVER) . '/' . $f;
+            //            $f = app_path(APP_UPLOAD_DRIVER) . '/' . $f;
 
             if (isImage($f)) {
                 Header('Location: /' . APP_UPLOAD_DRIVER . '/' . $_REQUEST["f"]);

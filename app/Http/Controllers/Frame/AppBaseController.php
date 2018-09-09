@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers\Frame;
 
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-use App\Models\Frame\Base;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Route;
-use App\Models\Data\SysSetting;
 use App\Models\Data\DictSetting;
+use App\Models\Data\SysSetting;
+use App\Models\Frame\Base;
+use Excel;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rule;
 use Log;
 use Storage;
-use Excel;
-
 
 class AppBaseController extends BaseController
 {
@@ -77,15 +76,15 @@ class AppBaseController extends BaseController
         }
 
         $this->success_update = function ($request, $dataset, $id) {
-            $this->after_update($request, $dataset, $id);//更新
+            $this->after_update($request, $dataset, $id); //更新
         };
 
         $this->success_store = function ($request, $dataset, $id) {
-            $this->after_store($request, $dataset, $id);//更新
+            $this->after_store($request, $dataset, $id); //更新
         };
 
         $this->success_destroy = function ($request, $dataset, $id) {
-            $this->after_destroy($request, $dataset, $id);//删除
+            $this->after_destroy($request, $dataset, $id); //删除
         };
 
         return null;
@@ -100,21 +99,21 @@ class AppBaseController extends BaseController
 //        dd($message2);
 
 //        $idx = -1;
-//        $failed = $validator->failed();
-//        foreach ($failed as $k => $v) {
-//            $msgkey = [];
-//            $msgkey[] = $k;
-//            $idx++;
-//            foreach ($v as $kk => $vv) {
-//                $msgkey [] = $kk;
-//            }
-//            $kk = strtolower(implode('.', $msgkey));
-//            if (array_key_exists($kk, $this->rules_setting['message']) && false) {
-//                $message[] = $this->rules_setting['message'][$kk];
-//            } else {
-//                $message[] = $message2[$idx];
-//            }
-//        };
+        //        $failed = $validator->failed();
+        //        foreach ($failed as $k => $v) {
+        //            $msgkey = [];
+        //            $msgkey[] = $k;
+        //            $idx++;
+        //            foreach ($v as $kk => $vv) {
+        //                $msgkey [] = $kk;
+        //            }
+        //            $kk = strtolower(implode('.', $msgkey));
+        //            if (array_key_exists($kk, $this->rules_setting['message']) && false) {
+        //                $message[] = $this->rules_setting['message'][$kk];
+        //            } else {
+        //                $message[] = $message2[$idx];
+        //            }
+        //        };
 
         return [
             'data' => [],
@@ -176,13 +175,15 @@ class AppBaseController extends BaseController
                 }
                 $fieldAdd = "like";
             }
-            if (!empty($fieldAdd) && !empty($key) && in_array($key, $db_fields))
+            if (!empty($fieldAdd) && !empty($key) && in_array($key, $db_fields)) {
                 $where[$fieldAdd][$key] = $val;
+            }
+
         };
 
 //        /**
-//         * 获取分页
-//         */
+        //         * 获取分页
+        //         */
         $where['limit'] = request_page($request);
 
         if (check_not_empty($request, '_order')) {
@@ -203,8 +204,10 @@ class AppBaseController extends BaseController
      */
     protected function get_table_fields($dataset)
     {
-        if (is_string($dataset))
+        if (is_string($dataset)) {
             return Base::get_table_fields($dataset);
+        }
+
         return Base::get_table_fields($dataset->getTable());
     }
 
@@ -215,10 +218,12 @@ class AppBaseController extends BaseController
      */
     protected function get_table_key($dataset)
     {
-        if (is_orm($dataset))
+        if (is_orm($dataset)) {
             return $dataset->getKeyName();
-        else if (is_builder($dataset))
+        } else if (is_builder($dataset)) {
             return $dataset->getModel()->getKeyName();
+        }
+
         return false;
     }
 
@@ -227,10 +232,12 @@ class AppBaseController extends BaseController
         if (empty($dataset)) {
             $dataset = $this->model;
         }
-        if (is_orm($dataset))
+        if (is_orm($dataset)) {
             return $dataset->getKeyName();
-        else if (is_builder($dataset))
+        } else if (is_builder($dataset)) {
             return $dataset->getModel()->getKeyName();
+        }
+
         return false;
     }
 
@@ -245,8 +252,14 @@ class AppBaseController extends BaseController
         if (empty($result)) {
             $sys_dic = $this->get_sys_dic($request, $is_arrayToArray);
             $dict_dic = $this->get_dict_dic($request, $is_arrayToArray);
-            if (empty($sys_dic)) $sys_dic = [];
-            if (empty($dict_dic)) $dict_dic = [];
+            if (empty($sys_dic)) {
+                $sys_dic = [];
+            }
+
+            if (empty($dict_dic)) {
+                $dict_dic = [];
+            }
+
             $result = array_merge($sys_dic, $dict_dic);
             S($cache_key, $result);
         }
@@ -279,13 +292,19 @@ class AppBaseController extends BaseController
             }
         }
         //如果机构ID为空，则没有必要返回
-        if (($table_name == 'dict_dic') && empty($org_id)) return [];
+        if (($table_name == 'dict_dic') && empty($org_id)) {
+            return [];
+        }
+
         $cache = $table_name . "_" . $org_id . '_' . ($is_arrayToArray ? '1' : '0');
 //        dd($cache);
         $result = S($cache);
         if (empty($result)) {
             $where = [];
-            if ($org_id) $where[DB_ORG_ID] = $org_id;
+            if ($org_id) {
+                $where[DB_ORG_ID] = $org_id;
+            }
+
             $where['is_del'] = 0;
             $where['show_type'] = 1;
             $result = DB::table($table_name)
@@ -299,8 +318,9 @@ class AppBaseController extends BaseController
             if ($is_arrayToArray) {
 //                dd($is_arrayToArray);
                 $result = arrayToArray($result);
-            } else
+            } else {
                 $result = arrayToArrayByType($result);
+            }
 
             S($cache, $result);
         }
@@ -311,10 +331,11 @@ class AppBaseController extends BaseController
     {
         $data = [];
 
-        if ($table == 'sys')
+        if ($table == 'sys') {
             $ds = SysSetting::where(['org_id' => 0]);
-        else
+        } else {
             $ds = DictSetting::where(['org_id' => 0]);
+        }
 
         if (property_exists($request->__user, 'org_id')) {
             $ds = $ds->orWhere(['org_id' => $request->__user->org_id]);
@@ -334,7 +355,9 @@ class AppBaseController extends BaseController
         //解析查询条件
 
         $dataset = $this->parse_where($request, $dataset, $where);
-        if (empty($fields)) $fields = ['*'];
+        if (empty($fields)) {
+            $fields = ['*'];
+        }
 
         if (empty($id)) {
             //数据列表=---------------
@@ -355,8 +378,10 @@ class AppBaseController extends BaseController
             }
 
             //获取数据列表
-            if (empty($data['list']))
+            if (empty($data['list'])) {
                 $data['list'] = $this->get_data_load($request, $dataset, $where, $fields, $is_array);
+            }
+
             return return_json($data, "success");
         } else {
             //查询单个对象---------------
@@ -398,77 +423,103 @@ class AppBaseController extends BaseController
             }
         }
         if (isset($where['neq']) && $where['neq']) {
-            foreach ($where['neq'] as $k => $v)
+            foreach ($where['neq'] as $k => $v) {
                 $dataset = $dataset->where($_ff($k), '!=', $v);
+            }
+
         }
         if (!empty($where['eqor'])) {
             $dataset = $dataset->where(function ($query) use ($where, $_ff) {
-                foreach ($where['eqor'] as $lk => $lv)
+                foreach ($where['eqor'] as $lk => $lv) {
                     $query->orWhere($_ff($lk), '=', $lv);
+                }
+
             });
         }
         // ----------------------------
         //大于
         if (isset($where['gt']) && $where['gt']) {
-            foreach ($where['gt'] as $k => $v)
+            foreach ($where['gt'] as $k => $v) {
                 $dataset = $dataset->where($_ff($k), '>', $v);
+            }
+
         }
         //大于等于
         if (isset($where['egt']) && $where['egt']) {
-            foreach ($where['egt'] as $k => $v)
+            foreach ($where['egt'] as $k => $v) {
                 $dataset = $dataset->where($_ff($k), '>=', $v);
+            }
+
         }
         //小于
         if (isset($where['lt']) && $where['lt']) {
-            foreach ($where['lt'] as $k => $v)
+            foreach ($where['lt'] as $k => $v) {
                 $dataset = $dataset->where($_ff($k), '<', $v);
+            }
+
         }
         //小于等于
         if (isset($where['elt']) && $where['elt']) {
-            foreach ($where['elt'] as $k => $v)
+            foreach ($where['elt'] as $k => $v) {
                 $dataset = $dataset->where($_ff($k), '<=', $v);
+            }
+
         }
 
         // ----------------------------
 
         if (isset($where['in']) && $where['in']) {
-            foreach ($where['in'] as $k => $v)
+            foreach ($where['in'] as $k => $v) {
                 $dataset = $dataset->whereIn($_ff($k), $v);
+            }
+
         }
         if (isset($where['nin']) && $where['nin']) {
-            foreach ($where['nin'] as $k => $v)
-                $dataset = $dataset->whereNotIn($_ff($k), $v);//
+            foreach ($where['nin'] as $k => $v) {
+                $dataset = $dataset->whereNotIn($_ff($k), $v);
+            }
+//
         }
 
         // ----------------------------
         if (isset($where['between']) && $where['between']) {
-            foreach ($where['between'] as $k => $v)
+            foreach ($where['between'] as $k => $v) {
                 $dataset = $dataset->whereBetween($_ff($k), $v);
+            }
+
         }
 
         // ----------------------------
         if (isset($where['like']) && $where['like']) {
             $dataset = $dataset->where(function ($query) use ($where, $_ff) {
-                foreach ($where['like'] as $lk => $lv)
+                foreach ($where['like'] as $lk => $lv) {
                     $query->where($_ff($lk), 'like', $lv);
+                }
+
             });
         }
         if (isset($where['nlike']) && $where['nlike']) {
             $dataset = $dataset->where(function ($query) use ($where, $_ff) {
-                foreach ($where['nlike'] as $lk => $lv)
+                foreach ($where['nlike'] as $lk => $lv) {
                     $query->where($_ff($lk), 'not like', $lv);
+                }
+
             });
         }
         if (isset($where['likeor']) && $where['likeor']) {
             $dataset = $dataset->where(function ($query) use ($where, $_ff) {
-                foreach ($where['likeor'] as $lk => $lv)
+                foreach ($where['likeor'] as $lk => $lv) {
                     $query->orWhere($_ff($lk), 'like', $lv);
+                }
+
             });
         }
 
         if (isset($where['null']) && $where['null']) {
-            foreach ($where['null'] as $k => $v)
+            foreach ($where['null'] as $k => $v) {
                 $dataset = $dataset->whereNull($_ff($k))->orwhere($_ff($k), $v);
+            }
+
         }
         // ----------------------------
         if (check_not_empty($where, 'join')) {
@@ -580,17 +631,23 @@ class AppBaseController extends BaseController
                             $is_true = false;
                             if (array_key_exists('eq', $vvv)) {
                                 $is_true = true;
-                                foreach ($vvv['eq'] as $wc => $wv)
+                                foreach ($vvv['eq'] as $wc => $wv) {
                                     $rule = $rule->where($wc, $wv);
+                                }
+
                             }
                             if (array_key_exists('neq', $vvv)) {
                                 $is_true = true;
-                                foreach ($vvv['neq'] as $wc => $wv)
+                                foreach ($vvv['neq'] as $wc => $wv) {
                                     $rule = $rule->whereNot($wc, $wv);
+                                }
+
                             }
                             if (!$is_true) {
-                                foreach ($vvv as $wc => $wv)
+                                foreach ($vvv as $wc => $wv) {
                                     $rule = $rule->whereNot($wc, $wv);
+                                }
+
                             }
                         }
                     };
@@ -620,7 +677,6 @@ class AppBaseController extends BaseController
     }
 
     // ----------------------------------------------------------
-
 
     /**
      * 从数据库，加载当前列表中的数据
@@ -680,7 +736,10 @@ class AppBaseController extends BaseController
         $is_true = false;
         foreach (EXPORT_HTTP_CODE as $code) {
             $is_true = (isset($request[$code]) && $request[$code] == '1');
-            if ($is_true) break;
+            if ($is_true) {
+                break;
+            }
+
         }
         if ($is_true) {
             $result = 1;
@@ -771,8 +830,9 @@ class AppBaseController extends BaseController
         }
         $where = array_merge($get_where, $where);
         //获取字段
-        if (empty($fields))
+        if (empty($fields)) {
             $fields = $this->get_fields($request, $dataset);
+        }
 
         return $this->search($request, $dataset, $where, $fields, false, $id);
     }
@@ -790,7 +850,7 @@ class AppBaseController extends BaseController
         } else {
             $field = [
                 DB::raw($this->model->get_dict_key() . ' as ' . '`' . $p_dict_display['value'] . '`'),
-                DB::raw($vv . ' as ' . '`' . $p_dict_display['label'] . '`')
+                DB::raw($vv . ' as ' . '`' . $p_dict_display['label'] . '`'),
             ];
         }
         $field = array_merge($field, $p_field);
@@ -821,7 +881,9 @@ class AppBaseController extends BaseController
         } else {
             $last_id = $this->__update_db($request, $dataset, $id);
         }
-
+        if (!is_numeric($last_id) && is_object($last_id)){
+            return $last_id;
+        }
         if (!$last_id) {
             if (isset($error) && !empty($error)) {
                 $fn_res = call_user_func($error, $request, $dataset, $last_id);
@@ -829,14 +891,14 @@ class AppBaseController extends BaseController
             return return_json([], '数据操作失败', HTTP_WRONG);
         } else {
 //            if (!isset($fn)) {
-//                $fn = function ($request, $dataset, $last_id) use ($id) {
-//                    if ($id) {
-//                        $this->after_update($request, $dataset, $last_id);//更新
-//                    } else {
-//                        $this->after_store($request, $dataset, $last_id);//新增
-//                    }
-//                };
-//            }
+            //                $fn = function ($request, $dataset, $last_id) use ($id) {
+            //                    if ($id) {
+            //                        $this->after_update($request, $dataset, $last_id);//更新
+            //                    } else {
+            //                        $this->after_store($request, $dataset, $last_id);//新增
+            //                    }
+            //                };
+            //            }
 
             //回调处理函数
             if (isset($success) && !empty($success)) {
@@ -871,9 +933,9 @@ class AppBaseController extends BaseController
             return return_json([], $request_data['message'], HTTP_WRONG);
         };
 
-        if (!empty($id))
+        if (!empty($id)) {
             $this->before_update($request, $dataset, $id);
-        else {
+        } else {
             //主键是UUID
             if ($dataset->get_primary_is_uuid()) {
                 $uuid = get_uuid();
@@ -891,10 +953,10 @@ class AppBaseController extends BaseController
         if ($res) {
             $last_id = $dataset->{$dataset->getKeyName()};
 //            if (empty($id) && $dataset->get_primary_is_uuid()) {
-//                $last_id = $uuid;
-//            } else {
-//                $last_id = $dataset->{$dataset->getKeyName()};
-//            }
+            //                $last_id = $uuid;
+            //            } else {
+            //                $last_id = $dataset->{$dataset->getKeyName()};
+            //            }
         }
         return $last_id;
     }
@@ -1065,11 +1127,11 @@ class AppBaseController extends BaseController
         if ($file->isValid()) {
             // 获取文件相关信息
             $originalName = $file->getClientOriginalName(); // 文件原名
-            $ext = $file->getClientOriginalExtension();     // 扩展名
-            $realPath = $file->getRealPath();   //临时文件的绝对路径
+            $ext = $file->getClientOriginalExtension(); // 扩展名
+            $realPath = $file->getRealPath(); //临时文件的绝对路径
             $size = $file->getClientSize();
 
-            $type = $file->getClientMimeType();     // image/jpeg
+            $type = $file->getClientMimeType(); // image/jpeg
             $arr = explode('/', $type);
             $ext = $arr[sizeof($arr) - 1];
             if (strlen($ext) > 4) {
@@ -1091,7 +1153,7 @@ class AppBaseController extends BaseController
                     'type' => $type,
                     'size' => $size,
                     'status' => 1,
-                    'dt' => get_dt()
+                    'dt' => get_dt(),
                 ];
             }
         }

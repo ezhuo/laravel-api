@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Data;
 
 use App\Http\Controllers\Frame\AppDataController;
-use App\Models\Frame\Base;
 use App\Models\Data\Canton;
+use App\Models\Frame\Base;
 use Cache;
 use Illuminate\Http\Request;
 
@@ -53,4 +53,5 @@ class PublicController extends AppDataController
         $canton = new CantonController($request, new Canton());
         return $canton->getSelectTree($request);
     }
+
 }

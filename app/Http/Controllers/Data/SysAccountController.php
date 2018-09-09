@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Data;
 
+use App\Http\Controllers\Frame\AppDataController;
 use App\Models\Data\Canton;
-use Illuminate\Http\Request;
 use App\Models\Data\SysAccount;
 use DB;
-use App\Http\Controllers\Frame\AppDataController;
+use Illuminate\Http\Request;
 
 class SysAccountController extends AppDataController
 {
@@ -30,15 +30,15 @@ class SysAccountController extends AppDataController
                 'table' => DB::raw('sys_role as b'),
                 'left' => DB::RAW($this->model_table . '.role_id'),
                 'ex' => '=',
-                'right' => DB::RAW('b.role_id')
+                'right' => DB::RAW('b.role_id'),
             ],
             [
                 'join' => 'leftJoin',
                 'table' => DB::raw('org_info as c'),
                 'left' => DB::RAW($this->model_table . '.org_id'),
                 'ex' => '=',
-                'right' => DB::RAW('c.org_id')
-            ]
+                'right' => DB::RAW('c.org_id'),
+            ],
         ];
         return $where;
     }
@@ -48,7 +48,7 @@ class SysAccountController extends AppDataController
         return [
             DB::raw($this->model_table . '.*'),
             DB::raw('b.name as role_name'),
-            DB::raw('c.org_name')
+            DB::raw('c.org_name'),
         ];
     }
 

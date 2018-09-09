@@ -12,7 +12,10 @@ class OrgInfo extends Data
     protected $dict_value = 'org_corpname';
 
     protected $fillable = [
-        'org_id', 'parent_id', 'fdn', 'org_name', 'org_corpname', 'linkman', 'phone', 'tel', 'email', 'address', 'canton_id', 'canton_fdn', 'logo', 'expire_time', 'memo', 'orderby', 'qrcode', 'files', 'status', 'created_at', 'updated_at', 'deleted_at'
+        'org_id', 'parent_id', 'org_fdn', 'org_name', 'org_corpname', 'linkman', 'is_group',
+        'phone', 'tel', 'email', 'address', 'canton_id', 'canton_fdn', 'logo',
+        'expire_time', 'memo', 'orderby', 'qrcode', 'files', 'status', 'created_at',
+        'updated_at', 'deleted_at'
     ];
 
     protected $export_field = [

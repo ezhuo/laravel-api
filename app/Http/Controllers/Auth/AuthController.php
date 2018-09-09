@@ -2,21 +2,33 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\Data\SysLogs;
-use App\Models\Data\SysLoginLogs;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Frame\AppDataController;
 use App\Models\Auth\Auth;
 use App\Models\Auth\Tokens;
+use App\Models\Data\SysLoginLogs;
+use App\Models\Data\SysLogs;
 use App\Models\Data\SysMenu;
-use App\Http\Controllers\Frame\AppDataController;
+use Captcha;
+use Illuminate\Http\Request;
+use Illuminate\Session\Store as Session;
+use Illuminate\Support\Str;
 
 class AuthController extends AppDataController
 {
-    public function __construct(Request $request, Auth $model)
-    {
+    protected $session = null;
+    protected $str = null;
+
+    public function __construct(
+        Request $request,
+        Auth $model,
+        Session $session,
+        Str $str
+    ) {
         parent::__construct($request, $model);
 
-        $this->middleware('auth', ['except' => ['login_pc', 'login_mobi_org']]);
+        $this->session = $session;
+        $this->str = $str;
+        $this->middleware('auth', ['except' => ['login_pc', 'login_mobi_org', 'captcha']]);
     }
 
     public function checktoken(Request $request)
@@ -44,6 +56,9 @@ class AuthController extends AppDataController
 
     protected function user_login($request, $login_type)
     {
+        if (!$this->captchaCheck($request)) {
+            return return_json([], '验证码不正确', HTTP_NOAUTH);
+        }
         if ($login_type == 'sys') {
             $res = Auth::login_pc_sys($request);
         } elseif ($login_type == 'org') {
@@ -68,7 +83,7 @@ class AuthController extends AppDataController
         $tk = Tokens::read_auth_id($request, $res['account']->id);
         if (!empty($tk)) {
 //            Tokens::destroy_auth_id($request, $res['account']->id);
-//            $loginInfo = "提醒：该帐号已在其它设备上登录，其它设备登录的帐号将会自动退出。";
+            //            $loginInfo = "提醒：该帐号已在其它设备上登录，其它设备登录的帐号将会自动退出。";
         }
 
         $list['token'] = token_encode($res['account']);
@@ -105,4 +120,23 @@ class AuthController extends AppDataController
             return return_json([], '注销失败', HTTP_NOAUTH);
         }
     }
+
+    /**
+     * 验证码
+     */
+    public function captcha(Request $request)
+    {
+        $arr = Captcha::create('default', true);
+        // $this->session->put('captcha', $arr);
+        return $arr;
+    }
+
+    protected function captchaCheck($request)
+    {
+        if (!$request->has('captcha')) {
+            return true;
+        }
+        return Captcha::check($request['captcha']['value']);
+    }
+
 }

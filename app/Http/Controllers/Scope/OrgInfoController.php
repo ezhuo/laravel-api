@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Scope;
 
+use App\Http\Controllers\Frame\AppDataController;
 use App\Models\Data\Canton;
-use Illuminate\Http\Request;
 use App\Models\Scope\OrgInfo;
 use DB;
-use App\Http\Controllers\Frame\AppDataController;
+use Illuminate\Http\Request;
 
 class OrgInfoController extends AppDataController
 {
@@ -42,15 +42,15 @@ class OrgInfoController extends AppDataController
                 'table' => DB::raw('sys_canton as b'),
                 'left' => DB::RAW($this->model_table . '.canton_fdn'),
                 'ex' => '=',
-                'right' => DB::RAW('b.fdn')
+                'right' => DB::RAW('b.fdn'),
             ],
             [
                 'join' => 'leftJoin',
                 'table' => DB::raw('(select org_id as parent_org_id,org_name as parent_org_name from org_info) as c'),
                 'left' => DB::RAW($this->model_table . '.parent_id'),
                 'ex' => '=',
-                'right' => DB::RAW('c.parent_org_id')
-            ]
+                'right' => DB::RAW('c.parent_org_id'),
+            ],
         ];
         return $where;
     }
@@ -90,5 +90,10 @@ class OrgInfoController extends AppDataController
             [DB::Raw('org_id,' . $this->model_table . '.parent_id,' . $this->model_table . '.org_fdn as `key` , org_name as title')],
             ['order' => [$this->model_table . '.org_fdn' => 'asc', 'org_id' => 'asc']]
         );
+    }
+
+    protected function __index_dict(Request $request, $p_field = [], $p_where = [], $p_dict_display = [])
+    {
+        return parent::__index_dict($request, ['org_fdn'], $p_where, $p_dict_display);
     }
 }

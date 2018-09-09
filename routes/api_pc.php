@@ -15,6 +15,7 @@ Route::post('auth/login', 'Auth\AuthController@login_pc');
 Route::post('auth/logout', 'Auth\AuthController@logout');
 Route::post('auth/checktoken', 'Auth\AuthController@checktoken');
 Route::post('auth/userinfo', 'Auth\AuthController@userinfo');
+Route::get('auth/captcha', 'Auth\AuthController@captcha');
 
 Route::post('file/upload', 'Frame\FileController@upload');
 Route::get('file/download', 'Frame\FileController@download');

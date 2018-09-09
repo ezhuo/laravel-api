@@ -175,3 +175,36 @@ function format_excel2array($filePath = '', $sheet = 0) {
     }
     return $data;
 }
+
+/**
+ * 在图上填充数据
+ */
+function arrayFillByChart($src , $start ,$end , $format , $unit){
+    $src = is_object($src) ? object2array($src) : $src;
+    $idx = $start ;
+    $at = [];
+    while($idx  <= $end){
+        $at[] = $idx;
+        $idx = date($format , strtotime('+1 ' . $unit , strtotime($idx)));
+    }
+
+    $result = [];
+
+    foreach($at as $val){
+        $dd = arrayFindByChart($src,$val);
+        if (empty($dd)){
+            $dd = ['x'=>$val,'y'=>0];
+        }
+        $result[] = $dd; 
+    }
+    return $result;
+}
+
+function arrayFindByChart($src ,$k){
+    foreach($src as $val){
+        if ($val['x'] == $k){
+            return $val;
+        }
+    }
+    return null;
+}
