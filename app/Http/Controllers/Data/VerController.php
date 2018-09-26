@@ -11,17 +11,15 @@ class VerController extends AppDataController
     public function __construct(Request $request, Base $model)
     {
         parent::__construct($request, $model);
-        // $this->middleware('auth', ['except' => ['CheckVersion']]);
+        $this->middleware('auth', ['except' => ['CheckVersion']]);
     }
 
     public function CheckVersion(Request $request)
     {
-        // return response()->json(['ok' => true], 200, ['Access-Control-Allow-Origin' => 'http://localhost:8093']);
-        // dd($request['ver']);
         return return_json([
             'ver' => '1.0.1',
-            'message' => 'http://down.ylyapp.cn:89/apk/resthome-qqb-v1.x.apk',
-            'url' => '',
+            'message' => '数据更新！',
+            'url' => 'http://down.ylyapp.cn:89/apk/resthome-qqb-v1.x.apk',
             'total' => '',
             'errcode' => 0,
         ], '');
