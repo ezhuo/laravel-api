@@ -11,7 +11,7 @@ Route::resource('test', 'Test\TestController');
 Route::get('dash/count', 'Scope\SysDashController@count');
 
 //----------------------------------
-Route::post('auth/login', 'Auth\AuthController@login_pc');
+Route::post('auth/login', 'Auth\AuthController@loginPc');
 Route::post('auth/logout', 'Auth\AuthController@logout');
 Route::post('auth/checktoken', 'Auth\AuthController@checktoken');
 Route::post('auth/userinfo', 'Auth\AuthController@userinfo');

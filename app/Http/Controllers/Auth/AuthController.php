@@ -28,7 +28,7 @@ class AuthController extends AppDataController
 
         $this->session = $session;
         $this->str = $str;
-        $this->middleware('auth', ['except' => ['login_pc', 'login_mobi_org', 'captcha']]);
+        $this->middleware('auth', ['except' => ['loginPc', 'loginApp', 'captcha']]);
     }
 
     public function checktoken(Request $request)
@@ -60,9 +60,9 @@ class AuthController extends AppDataController
             return return_json([], '验证码不正确', HTTP_NOAUTH);
         }
         if ($login_type == 'sys') {
-            $res = Auth::login_pc_sys($request);
-        } elseif ($login_type == 'org') {
-            $res = Auth::login_pc_org($request);
+            $res = Auth::loginPc($request);
+        } elseif ($login_type == 'app') {
+            $res = Auth::loginApp($request);
         }
 
         if ($res['code'] == 201) {
@@ -97,15 +97,16 @@ class AuthController extends AppDataController
         return return_json($list, $loginInfo);
     }
 
-    public function login_pc(Request $request)
+    public function loginPc(Request $request)
     {
         $request->__source = $request['login_type'];
         return $this->user_login($request, $request['login_type']);
+        // return $this->user_login($request, 'pc');
     }
 
-    public function login_mobi_org(Request $request)
+    public function loginApp(Request $request)
     {
-        return $this->user_login($request, 'org');
+        return $this->user_login($request, 'app');
     }
 
     public function logout(Request $request)

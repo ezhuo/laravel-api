@@ -19,6 +19,8 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \Illuminate\Session\Middleware\StartSession::class,
+        \Barryvdh\Cors\HandleCors::class,
+        // \App\Http\Middleware\CorsMiddleware::class,
     ];
 
     /**
@@ -68,5 +70,8 @@ class Kernel extends HttpKernel
         'source_org' => \App\Http\Middleware\SourceOrgMiddleware::class,
 
         'auth' => \App\Http\Middleware\AuthMiddleware::class,
+
+        // 'cors' => \App\Http\Middleware\CorsMiddleware::class,
+        'cors' => \Barryvdh\Cors\HandleCors::class,
     ];
 }

@@ -48,7 +48,7 @@ class BeforeMiddleware {
         if (empty($packet_data)) $packet_data = "{}";
         $md5_server = md5($style . $token . $packet_data . APP_REQUEST_CHECK_CODE);
 
-//        dd($md5_server);
+       dd($md5_server);
 //        dd($packet_data);
 //        print_r($style . $token . $packet_data . APP_REQUEST_CHECK_CODE);
 

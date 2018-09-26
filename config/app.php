@@ -179,7 +179,8 @@ return [
 
 	    App\Providers\LogServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
-        
+        Barryvdh\Cors\ServiceProvider::class,
+
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Mews\Captcha\CaptchaServiceProvider::class,
     ],
