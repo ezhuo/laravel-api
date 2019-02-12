@@ -24,6 +24,7 @@
         "nategood/httpful": "^0.2.20",
         "predis/predis": "^1.1",
         "ramsey/uuid": "^3.6",
+        "swooletw/laravel-swoole": "^2.0",
         "vlucas/phpdotenv": "^2.4"
     },
     "require-dev": {
