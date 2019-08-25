@@ -87,13 +87,14 @@ class OrgInfoController extends AppDataController
         $request['tree'] = 1;
         return parent::__index_dict(
             $request,
-            [DB::Raw('org_id,' . $this->model_table . '.parent_id,' . $this->model_table . '.org_fdn as `key` , org_name as title')],
-            ['order' => [$this->model_table . '.org_fdn' => 'asc', 'org_id' => 'asc']]
+            [DB::Raw('org_id,' . $this->model_table . '.parent_id,' . $this->model_table . '.org_fdn as `key` , org_name as title , org_name as text')],
+            ['order' => ['org_id' => 'asc', $this->model_table . '.org_fdn' => 'asc']]
         );
     }
 
     protected function __index_dict(Request $request, $p_field = [], $p_where = [], $p_dict_display = [])
     {
-        return parent::__index_dict($request, ['org_fdn'], $p_where, $p_dict_display);
+        return parent::__index_dict($request, ['org_fdn'], ['order' => ['orderby' => 'asc', 'org_fdn' => 'asc', 'org_id' => 'asc']], $p_dict_display);
+        // return parent::__index_dict($request, ['org_fdn'], $p_where, $p_dict_display);
     }
 }

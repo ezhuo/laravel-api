@@ -9,7 +9,7 @@ class OrgInfo extends Data
 {
     protected $table = DB_PREFIX . 'org_info';
     protected $primaryKey = 'org_id';
-    protected $dict_value = 'org_corpname';
+    protected $dict_value = 'org_name';
 
     protected $fillable = [
         'org_id', 'parent_id', 'org_fdn', 'org_name', 'org_corpname', 'linkman', 'is_group',
