@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Data;
 use Illuminate\Http\Request;
 use App\Models\Data\SysRole;
 use App\Http\Controllers\Frame\AppDataController;
+use Cache;
 
 class SysRoleController extends AppDataController {
 
@@ -33,6 +34,7 @@ class SysRoleController extends AppDataController {
 
     //更新之后
     protected function after_update($request, $dataset, $id) {
+        Cache::flush();
         return false;
 //        if ((int)$id > 0) {
 //            $menu_list = $_REQUEST['menu_ids'];
@@ -60,6 +62,7 @@ class SysRoleController extends AppDataController {
 
 
     protected function after_delete($result) {
+        Cache::flush();
         return false;
 //        if ((int)$result < 1) return false;
 //        $rm = D('SysRoleMenu');

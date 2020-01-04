@@ -39,7 +39,7 @@ class OrgInfoController extends AppDataController
         $where['join'] = [
             [
                 'join' => 'leftJoin',
-                'table' => DB::raw('sys_canton as b'),
+                'table' => DB::raw('(select canton_id,fdn,text_name from sys_canton) as b'),
                 'left' => DB::RAW($this->model_table . '.canton_fdn'),
                 'ex' => '=',
                 'right' => DB::RAW('b.fdn'),

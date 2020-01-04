@@ -206,3 +206,44 @@ function request_page($request) {
     }
     return $result;
 }
+
+// 从request中获取字段数据
+function request_field_data($requestObj, $fields, $id = 0) {
+    $request = $requestObj;
+    if (is_object($requestObj)) {
+        $request = $requestObj->all();
+    }
+
+    $request_data = [];
+    if ($id == 0 && !check_not_empty($request, DB_CREATED_AT)) {
+        $request[DB_CREATED_AT] = get_dt();
+    }
+    if ($id > 0 && !check_not_empty($request, DB_UPDATED_AT)) {
+        $request[DB_UPDATED_AT] = get_dt();
+    }
+    if (array_key_exists(DB_CREATED_AT, $request) && $request[DB_CREATED_AT] < '2000-1-1') {
+        $request[DB_CREATED_AT] = get_dt();
+    }
+
+    if (array_key_exists(DB_UPDATED_AT, $request) && $request[DB_UPDATED_AT] < '2000-1-1') {
+        $request[DB_UPDATED_AT] = get_dt();
+    }
+//    dd($request);
+    foreach ($fields as $col) {
+//        if (isset($request[$col])) {
+        // 发现重大BUG，不应该值是否为空，应该请求里是否有该主键
+        if (array_key_exists($col, $request)) {
+            $request_val = $request[$col];
+            $request_data[$col] = $request_val;
+        }
+    }
+    return $request_data;
+}
+
+function request_dataset_data($request, $fields, &$dataset, $id = 0) {
+    $request_data = request_field_data($request, $fields, $id);
+    foreach ($request_data as $col => $val) {
+        $dataset->{$col} = $val;
+    }
+    return $request_data;
+}

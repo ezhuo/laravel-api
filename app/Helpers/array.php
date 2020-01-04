@@ -101,6 +101,7 @@ function arrayToArray($tV) {
     $keyStr = "[\$tt['" . implode("']][\$tt['", $keys) . "']]";
     $vvv = sprintf("\$rv%s=\$tt['%s'];", $keyStr, $valStr);
     foreach ($tV as $tt) {
+        $tt = is_object($tt) ? object2array($tt) : $tt;
         eval($vvv);
     }
     unset($vvv);
@@ -133,11 +134,16 @@ function FirstToArray($tV) {
 
 function arrayToArrayByType($arr) {
     $result = [];
+    $tmp = [];
     foreach ($arr as $k => $v) {
         if (check_empty($result, $v->type)) {
             $result[$v->type] = [];
         }
-        $result[$v->type][] = ['label' => $v->name, 'value' => $v->code];
+        $tmp = ['label' => $v->name, 'value' => $v->code];
+        if (isset($v->days)) {
+            $tmp['days'] = $v->days;
+        }
+        $result[$v->type][] = $tmp;
     }
     return $result;
 }
@@ -179,32 +185,96 @@ function format_excel2array($filePath = '', $sheet = 0) {
 /**
  * 在图上填充数据
  */
-function arrayFillByChart($src , $start ,$end , $format , $unit){
+function arrayFillByChart($src, $start, $end, $format, $unit) {
     $src = is_object($src) ? object2array($src) : $src;
-    $idx = $start ;
+    $idx = $start;
     $at = [];
-    while($idx  <= $end){
+    while ($idx <= $end) {
         $at[] = $idx;
-        $idx = date($format , strtotime('+1 ' . $unit , strtotime($idx)));
+        $idx = date($format, strtotime('+1 ' . $unit, strtotime($idx)));
     }
 
     $result = [];
 
-    foreach($at as $val){
-        $dd = arrayFindByChart($src,$val);
-        if (empty($dd)){
-            $dd = ['x'=>$val,'y'=>0];
+    foreach ($at as $val) {
+        $dd = arrayFindByChart($src, $val);
+        if (empty($dd)) {
+            $dd = ['x' => $val, 'y' => 0];
         }
-        $result[] = $dd; 
+        $result[] = $dd;
     }
     return $result;
 }
 
-function arrayFindByChart($src ,$k){
-    foreach($src as $val){
-        if ($val['x'] == $k){
+function arrayFindByChart($src, $k) {
+    foreach ($src as $val) {
+        if ($val['x'] == $k) {
             return $val;
         }
     }
     return null;
+}
+
+/**
+ * 获取两个日期之间的所有日期
+ * @param $startdate
+ * @param $enddate
+ * @return array
+ */
+function getDateFromRange($startdate, $enddate) {
+
+    $stimestamp = strtotime($startdate);
+    $etimestamp = strtotime($enddate);
+
+    // 计算日期段内有多少天
+    $days = ($etimestamp - $stimestamp) / 86400 + 1;
+
+    // 保存每天日期
+    $date = array();
+
+    for ($i = 0; $i < $days; $i++) {
+        $date[] = date('Y-m-d', $stimestamp + (86400 * $i));
+    }
+
+    return $date;
+}
+
+function getWeekDateFirstAndEnd($weekDate = null) {
+    if (empty($weekDate)) $weekDate = date('Y-m-d');
+    $sdefaultDate = $weekDate;
+
+    //$first =1 表示每周星期一为开始日期 0表示每周日为开始日期
+    $first = 1;
+    //获取当前周的第几天 周日是 0 周一到周六是 1 - 6
+    $w = date('w', strtotime($sdefaultDate));
+    //获取本周开始日期，如果$w是0，则表示周日，减去 6 天
+    $week_start = date('Y-m-d', strtotime("$sdefaultDate -" . ($w ? $w - $first : 6) . ' days'));
+    //本周结束日期
+    $week_end = date('Y-m-d', strtotime("$week_start +6 days"));
+
+    return [
+        'start' => $week_start,
+        'end' => $week_end
+    ];
+}
+
+function getWeekDateByYearWeek($week_at, $first = 0) {
+    $tmp = explode('-', $week_at);
+    $year = $tmp[0];
+    $weeknum = $tmp[1];
+    $firstdayofyear = mktime(0, 0, 0, 1, 1, $year);
+    $firstweekday = date('N', $firstdayofyear);
+    $firstweenum = date('W', $firstdayofyear);
+    if ($firstweenum == 1) {
+        $day = (1 - ($firstweekday - 1)) + 7 * ($weeknum - 1);
+        $startdate = date('Y-m-d', mktime(0, 0, 0, 1, $day, $year));
+        $enddate = date('Y-m-d', mktime(0, 0, 0, 1, $day + 6, $year));
+    } else {
+        $day = (9 - $firstweekday) + 7 * ($weeknum - 1);
+        $startdate = date('Y-m-d', mktime(0, 0, 0, 1, $day, $year));
+        $enddate = date('Y-m-d', mktime(0, 0, 0, 1, $day + 6, $year));
+    }
+    $startdate = date('Y-m-d', strtotime("{$first} day", strtotime($startdate)));
+    $enddate = date('Y-m-d', strtotime("{$first} day", strtotime($enddate)));
+    return array('start' => $startdate, 'end' => $enddate);
 }

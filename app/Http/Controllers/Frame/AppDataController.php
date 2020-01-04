@@ -6,11 +6,9 @@ use App\Models\Data\SysMessageInfo;
 use App\Models\Frame\Base;
 use Illuminate\Http\Request;
 
-class AppDataController extends AppBaseController
-{
+class AppDataController extends AppBaseController {
 
-    public function __construct(Request $request, Base $model)
-    {
+    public function __construct(Request $request, Base $model) {
         parent::__construct($request, $model);
         return;
     }
@@ -20,8 +18,7 @@ class AppDataController extends AppBaseController
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $dataset = $this->model;
         return $this->__index($request, $dataset);
     }
@@ -31,8 +28,7 @@ class AppDataController extends AppBaseController
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function index_dict(Request $request)
-    {
+    public function index_dict(Request $request) {
         return $this->__index_dict($request);
     }
 
@@ -41,8 +37,7 @@ class AppDataController extends AppBaseController
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function create(Request $request)
-    {
+    public function create(Request $request) {
         return return_json();
     }
 
@@ -51,8 +46,7 @@ class AppDataController extends AppBaseController
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $dataset = $this->model;
         return $this->__update($request, $dataset, 0, $this->success_store);
     }
@@ -63,8 +57,7 @@ class AppDataController extends AppBaseController
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $dataset = $this->model;
         return $this->__update($request, $dataset, $id, $this->success_update);
     }
@@ -75,8 +68,7 @@ class AppDataController extends AppBaseController
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function show(Request $request, $id)
-    {
+    public function show(Request $request, $id) {
         $dataset = $this->model;
 //        return $this->__show($request, $dataset, $id);
         return $this->__index($request, $dataset, [], [], $id);
@@ -88,8 +80,7 @@ class AppDataController extends AppBaseController
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function edit(Request $request, $id)
-    {
+    public function edit(Request $request, $id) {
         $dataset = $this->model;
         return $this->__index($request, $dataset, [], [], $id);
     }
@@ -100,8 +91,7 @@ class AppDataController extends AppBaseController
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function destroy(Request $request, $id)
-    {
+    public function destroy(Request $request, $id) {
         $dataset = $this->model;
         return $this->__destroy($request, $dataset, $id, $this->success_destroy);
     }
@@ -111,8 +101,7 @@ class AppDataController extends AppBaseController
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function exports(Request $request, $id, $style, $token, $validate)
-    {
+    public function exports(Request $request, $id, $style, $token, $validate) {
         $title = $request['export_title'];
         $filename = $request['export_file'];
         $dataset = $this->model;
@@ -129,25 +118,26 @@ class AppDataController extends AppBaseController
      * http: /get , 用途：树
      * @param Request $request
      */
-    public function tree(Request $request, $id)
-    {
+    public function tree(Request $request, $id) {
         $dataset = $this->model;
         $request[TREE_HTTP_CODE] = 1;
         return $this->__index($request, $dataset);
     }
 
-    protected function get_where($request, $dataset)
-    {
+    protected function get_where($request, $dataset) {
         $where = parent::get_where($request, $dataset);
         return $this->get_default_where($request, $dataset, $where);
+    }
+
+    protected function before_store($request, $dataset) {
+        return parent::before_store($request, $dataset);
     }
 
     /**
      * 获取默认的查询
      * @param $request
      */
-    protected function get_default_where($request, $dataset, $where)
-    {
+    protected function get_default_where($request, $dataset, $where) {
         if (empty($where)) {
             $where = [];
         }
@@ -262,8 +252,7 @@ class AppDataController extends AppBaseController
         );
     }
 
-    protected function month_array($request, $start = null, $end = null)
-    {
+    protected function month_array($request, $start = null, $end = null) {
         $month_start = date('Y-01', time());
         if (isset($request['month_start'])) {
             $month_start = $request['month_start'];
@@ -303,8 +292,7 @@ class AppDataController extends AppBaseController
     /**
      * 请求类
      */
-    protected function requestAHYDCommitData($action, $params)
-    {
+    protected function requestAHYDCommitData($action, $params) {
         $res = http_post_iot($action, $params);
         $result = null;
         if ($res['code'] != '00000') {

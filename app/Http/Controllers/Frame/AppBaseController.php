@@ -18,8 +18,7 @@ use Illuminate\Validation\Rule;
 use Log;
 use Storage;
 
-class AppBaseController extends BaseController
-{
+class AppBaseController extends BaseController {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
@@ -62,8 +61,7 @@ class AppBaseController extends BaseController
 
 //    protected $dict_dic = null;
 
-    public function __construct(Request $request, Base $model)
-    {
+    public function __construct(Request $request, Base $model) {
         $this->dt = get_dt();
 
         $this->model = $model;
@@ -93,8 +91,7 @@ class AppBaseController extends BaseController
     /**
      * {@inheritdoc}
      */
-    protected function formatValidationErrors(Validator $validator)
-    {
+    protected function formatValidationErrors(Validator $validator) {
         $message = $validator->errors()->all();
 //        dd($message2);
 
@@ -127,8 +124,7 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return array
      */
-    protected function get_fields($request, $dataset)
-    {
+    protected function get_fields($request, $dataset) {
         return ['*'];
     }
 
@@ -139,12 +135,14 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return array
      */
-    protected function get_where($request, $dataset)
-    {
+    protected function get_where($request, $dataset) {
         $where = [];
         $db_fields = $this->get_table_fields($dataset);
-//        dd($db_fields);
+//        print_r($dataset);
+//        print_r($db_fields);
+//        die();
         $request_data = $request->all();
+//        print_r($request_data);die();
         foreach ($request_data as $key => $val) {
 //            if (strlen($val) < 1 && empty($val)) continue;
             $fieldAdd = "eq";
@@ -202,8 +200,7 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return mixed
      */
-    protected function get_table_fields($dataset)
-    {
+    protected function get_table_fields($dataset) {
         if (is_string($dataset)) {
             return Base::get_table_fields($dataset);
         }
@@ -216,8 +213,7 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return mixed
      */
-    protected function get_table_key($dataset)
-    {
+    protected function get_table_key($dataset) {
         if (is_orm($dataset)) {
             return $dataset->getKeyName();
         } else if (is_builder($dataset)) {
@@ -227,8 +223,7 @@ class AppBaseController extends BaseController
         return false;
     }
 
-    protected function get_model_key($dataset = null)
-    {
+    protected function get_model_key($dataset = null) {
         if (empty($dataset)) {
             $dataset = $this->model;
         }
@@ -245,8 +240,7 @@ class AppBaseController extends BaseController
      * 不管系统级或用户级的数据字典，都获取到
      * @param $request
      */
-    protected function get_dic($request, $is_arrayToArray = false)
-    {
+    protected function get_dic($request, $is_arrayToArray = false) {
         $cache_key = __FUNCTION__;
         $result = S($cache_key);
         if (empty($result)) {
@@ -269,8 +263,7 @@ class AppBaseController extends BaseController
     /**
      * 获取系统级设置表
      */
-    protected function get_sys_dic($request, $is_arrayToArray = false)
-    {
+    protected function get_sys_dic($request, $is_arrayToArray = false) {
         return $this->get_dict($request, 'sys_dic', $is_arrayToArray);
     }
 
@@ -278,23 +271,21 @@ class AppBaseController extends BaseController
      * 获取用户级设置表 ， 如果使用 arrayToArray ，将会出现一个较为严重的问题，就是不能排序
      * @param $request
      */
-    protected function get_dict_dic($request, $is_arrayToArray = false)
-    {
+    protected function get_dict_dic($request, $is_arrayToArray = false) {
         return $this->get_dict($request, 'dict_dic', $is_arrayToArray);
     }
 
-    protected function get_dict($request, $table_name, $is_arrayToArray = false)
-    {
+    protected function get_dict($request, $table_name, $is_arrayToArray = false) {
         $org_id = 0;
         if ($request && $table_name != 'sys_dic' && isset($request->__user)) {
             if (check_not_empty($request->__user, DB_ORG_ID)) {
-                $org_id = $request->__user->{DB_ORG_ID};
+//                $org_id = $request->__user->{DB_ORG_ID};
             }
         }
         //如果机构ID为空，则没有必要返回
-        if (($table_name == 'dict_dic') && empty($org_id)) {
-            return [];
-        }
+//        if (($table_name == 'dict_dic') && empty($org_id)) {
+//            return [];
+//        }
 
         $cache = $table_name . "_" . $org_id . '_' . ($is_arrayToArray ? '1' : '0');
 //        dd($cache);
@@ -311,6 +302,7 @@ class AppBaseController extends BaseController
                 ->where($where)
                 ->orderBy('type')
                 ->orderBy('order')
+                ->orderBy('dic_id')
                 ->orderBy('code')
                 ->orderBy('name')
                 ->get(['type', 'code', 'name']);
@@ -327,8 +319,7 @@ class AppBaseController extends BaseController
         return $result;
     }
 
-    protected function get_setting($request, $table = 'sys')
-    {
+    protected function get_setting($request, $table = 'sys') {
         $data = [];
 
         if ($table == 'sys') {
@@ -350,8 +341,7 @@ class AppBaseController extends BaseController
 
     // ----------------------------------------------------------
 
-    protected function search($request, $dataset, $where = [], $fields = [], $is_array = false, $id = null)
-    {
+    protected function search($request, $dataset, $where = [], $fields = [], $is_array = false, $id = null) {
         //解析查询条件
 
         $dataset = $this->parse_where($request, $dataset, $where);
@@ -396,8 +386,7 @@ class AppBaseController extends BaseController
      * @param array $where
      * @return mixed
      */
-    protected function parse_where($request, $dataset, $where)
-    {
+    protected function parse_where($request, $dataset, $where) {
         $table_alias = '';
         if (is_builder($dataset)) {
             $table_alias = $dataset->getModel()->get_table_alias();
@@ -532,6 +521,9 @@ class AppBaseController extends BaseController
                 }
             }
         }
+        if (check_not_empty($where, 'group')) {
+            $dataset = $dataset->groupBy($where['group']);
+        }
 //        dd($dataset);
         return $dataset;
     }
@@ -543,8 +535,7 @@ class AppBaseController extends BaseController
      * @param $id
      * @return array
      */
-    protected function parse_create($request, $dataset, $id)
-    {
+    protected function parse_create($request, $dataset, $id) {
         //检查字段映射
         $code = 200;
         $message = "";
@@ -568,38 +559,16 @@ class AppBaseController extends BaseController
             if (empty($Fillfields)) {
                 $Fillfields = $this->get_table_fields($dataset->getTable());
             }
+            $request_data = request_dataset_data($request, $Fillfields, $dataset, $id);
         } else if (is_string($dataset)) {
             $Fillfields = $this->get_table_fields($dataset);
+            $request_data = request_field_data($request, $Fillfields, $id);
         }
 
-        $request_data = [];
-        if ($id == 0 && !check_not_empty($request, DB_CREATED_AT)) {
-            $request[DB_CREATED_AT] = $this->dt;
-        }
-        if ($id > 0 && !check_not_empty($request, DB_UPDATED_AT)) {
-            $request[DB_UPDATED_AT] = $this->dt;
-        }
-        if ($request[DB_CREATED_AT] < '2000-1-1') {
-            $request[DB_CREATED_AT] = $this->dt;
-        }
-        if ($request[DB_UPDATED_AT] < '2000-1-1') {
-            $request[DB_UPDATED_AT] = $this->dt;
-        }
-
-        foreach ($Fillfields as $col) {
-            if (isset($request[$col])) {
-                $request_val = $request[$col];
-                $request_data[$col] = $request_val;
-                if ($is_orm) {
-                    $dataset->{$col} = $request_val;
-                }
-            }
-        }
         return ['data' => $request_data, 'code' => $code, 'message' => $message];
     }
 
-    protected function parse_rules($request, $dataset, $id = 0)
-    {
+    protected function parse_rules($request, $dataset, $id = 0) {
         $rules_setting = $dataset->get_rules_setting();
 
         foreach ($rules_setting['rules'] as $key => $val) {
@@ -663,8 +632,7 @@ class AppBaseController extends BaseController
         return $rules_setting;
     }
 
-    protected function get_excel($dataset, $path, $title, $data, $dict, $filename)
-    {
+    protected function get_excel($dataset, $path, $title, $data, $dict, $filename) {
         $field = [];
         if ($dataset) {
             if (is_builder($dataset)) {
@@ -687,8 +655,7 @@ class AppBaseController extends BaseController
      * @param bool $is_array
      * @return array
      */
-    protected function get_data_load($request, $dataset, $where = [], $fields = [], $is_array = false)
-    {
+    protected function get_data_load($request, $dataset, $where = [], $fields = [], $is_array = false) {
         $list = [];
         if (check_not_empty($where, 'limit')) {
             $dataset = $dataset->skip($where['limit']['page'])->take($where['limit']['size']);
@@ -715,8 +682,7 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return mixed
      */
-    protected function get_data_count($request, $dataset)
-    {
+    protected function get_data_count($request, $dataset) {
         return $dataset->take(1)->count();
     }
 
@@ -729,8 +695,7 @@ class AppBaseController extends BaseController
      * @param $count
      * @return bool
      */
-    protected function check_export_data($request, $dataset, $count)
-    {
+    protected function check_export_data($request, $dataset, $count) {
         $result = 0;
 
         $is_true = false;
@@ -756,8 +721,7 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return array
      */
-    protected function get_export_fields($request, $dataset)
-    {
+    protected function get_export_fields($request, $dataset) {
         return ['*'];
     }
 
@@ -767,8 +731,7 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @return array
      */
-    protected function get_export_dict($request, $dataset, $is_arrayToArray = true)
-    {
+    protected function get_export_dict($request, $dataset, $is_arrayToArray = true) {
         return $this->get_dic($request, $is_arrayToArray);
     }
 
@@ -778,10 +741,9 @@ class AppBaseController extends BaseController
      * @param $dataset
      * @param $list
      */
-    protected function get_export_data($request, $dataset, $where = [])
-    {
-        $title = $request['export_title'];
-        $filename = urldecode($request['export_file']);
+    protected function get_export_data($request, $dataset, $where = []) {
+        $title = $request['title'];
+        $filename = urldecode($request['filename']);
 
         $dataset = $dataset->skip(0)->take(EXPORT_MAX_COUNT);
 
@@ -807,10 +769,11 @@ class AppBaseController extends BaseController
      * @param bool $is_array
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    protected function get_tree_data($request, $dataset, $where = [], $fields = [])
-    {
+    protected function get_tree_data($request, $dataset, $where = [], $fields = []) {
         //获取数据列表
+        $fields = array_merge($fields, ['parent_id']);
         $arr = $this->get_data_load($request, $dataset, $where, $fields, true);
+//        print_r($arr);die();
         $rootid = 0;
         if (!empty($arr)) {
             $rootid = $arr[0]['parent_id'];
@@ -820,26 +783,39 @@ class AppBaseController extends BaseController
 
     // ----------------------------------------------------------
     //列表
-    protected function __index($request, $dataset, $fields = [], $where = [], $id = null)
-    {
+    protected function __index($request, $dataset, $fields = [], $where = [], $id = null) {
         //获取查询条件
         $get_where = $this->get_where($request, $dataset);
+
+//        dd($get_where);
         if (isset($get_where['dataset'])) {
             $dataset = $get_where['dataset'];
             unset($get_where['dataset']);
         }
-        $where = array_merge($get_where, $where);
+//        print_r($where);
+//        print_r($get_where);
+//        die();
+        $whereAll = array_merge($get_where, $where);
+        foreach ($whereAll as $k => $v) {
+            if (array_key_exists($k, $get_where) && array_key_exists($k, $where))
+                $whereAll[$k] = array_merge($get_where[$k], $where[$k]);
+        }
+//        if (isset($whereAll['order']) && isset($get_where['order']) && isset($where['order'])) {
+//            $whereAll['order'] = array_merge($where['order'], $get_where['order']);
+//            $whereAll['order'] = array_merge($whereAll['order'], $where['order']);
+//        }
+//        print_r($whereAll);
+//        die();
         //获取字段
         if (empty($fields)) {
             $fields = $this->get_fields($request, $dataset);
         }
 
-        return $this->search($request, $dataset, $where, $fields, false, $id);
+        return $this->search($request, $dataset, $whereAll, $fields, false, $id);
     }
 
     //获取数据字典
-    protected function __index_dict(Request $request, $p_field = [], $p_where = [], $p_dict_display = [])
-    {
+    protected function __index_dict(Request $request, $p_field = [], $p_where = [], $p_dict_display = []) {
         if (empty($p_dict_display)) {
             $p_dict_display['value'] = 'value';
             $p_dict_display['label'] = 'label';
@@ -856,7 +832,6 @@ class AppBaseController extends BaseController
         $field = array_merge($field, $p_field);
         $where = ['limit' => ['page' => 0, 'size' => 10000]];
         $where = array_merge($where, $p_where);
-
         $dataset = $this->model;
         if (empty($vv)) {
             return $this->__index($request, $dataset);
@@ -871,17 +846,15 @@ class AppBaseController extends BaseController
     }
 
     //数据更新
-    protected function __update($request, $dataset, $id = 0, $success = null, $error = null)
-    {
+    protected function __update($request, $dataset, $id = 0, $success = null, $error = null) {
         $is_orm = is_orm($dataset);
         $last_id = false;
-
         if ($is_orm) {
             $last_id = $this->__update_orm($request, $dataset, $id);
         } else {
             $last_id = $this->__update_db($request, $dataset, $id);
         }
-        if (!is_numeric($last_id) && is_object($last_id)){
+        if (!is_numeric($last_id) && is_object($last_id)) {
             return $last_id;
         }
         if (!$last_id) {
@@ -890,16 +863,6 @@ class AppBaseController extends BaseController
             }
             return return_json([], '数据操作失败', HTTP_WRONG);
         } else {
-//            if (!isset($fn)) {
-            //                $fn = function ($request, $dataset, $last_id) use ($id) {
-            //                    if ($id) {
-            //                        $this->after_update($request, $dataset, $last_id);//更新
-            //                    } else {
-            //                        $this->after_store($request, $dataset, $last_id);//新增
-            //                    }
-            //                };
-            //            }
-
             //回调处理函数
             if (isset($success) && !empty($success)) {
                 $fn_res = call_user_func($success, $request, $dataset, $last_id);
@@ -919,13 +882,15 @@ class AppBaseController extends BaseController
      * @param $id
      * @return bool|\Illuminate\Contracts\Routing\ResponseFactory|null|string|\Symfony\Component\HttpFoundation\Response
      */
-    protected function __update_orm($request, $dataset, $id)
-    {
+    protected function __update_orm($request, $dataset, $id) {
         $last_id = null;
 
         //更新前，先找到原数据
         if (!empty($id)) {
             $dataset = $dataset->find($id);
+            if (empty($dataset)) {
+                return $last_id;
+            }
         }
 
         $request_data = $this->parse_create($request, $dataset, $id);
@@ -952,11 +917,6 @@ class AppBaseController extends BaseController
 
         if ($res) {
             $last_id = $dataset->{$dataset->getKeyName()};
-//            if (empty($id) && $dataset->get_primary_is_uuid()) {
-            //                $last_id = $uuid;
-            //            } else {
-            //                $last_id = $dataset->{$dataset->getKeyName()};
-            //            }
         }
         return $last_id;
     }
@@ -968,8 +928,7 @@ class AppBaseController extends BaseController
      * @param $id
      * @return bool|\Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    protected function __update_db($request, $dataset, $id)
-    {
+    protected function __update_db($request, $dataset, $id) {
         $last_id = false;
         $uuid = "";
 
@@ -990,8 +949,7 @@ class AppBaseController extends BaseController
     }
 
     //数据删除
-    protected function __destroy($request, $dataset, $id, $success = null, $error = null)
-    {
+    protected function __destroy($request, $dataset, $id, $success = null, $error = null) {
         $http_code = HTTP_WRONG;
         $num = 0;
         if (empty($id)) {
@@ -1017,8 +975,7 @@ class AppBaseController extends BaseController
     }
 
     //数据显示
-    protected function __show($request, $dataset, $fields = [], $id = null)
-    {
+    protected function __show($request, $dataset, $fields = [], $id = null) {
         if (empty($id)) {
             return return_json([], '数据请求为空，操作失败', HTTP_WRONG);
         }
@@ -1032,8 +989,7 @@ class AppBaseController extends BaseController
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    protected function export_item($request, $dataset, $id, $title, $filename)
-    {
+    protected function export_item($request, $dataset, $id, $title, $filename) {
         $list = $dataset->find($id);
         $dict = $this->get_export_dict($request, $dataset);
         return $this->get_excel($dataset, $this->export_public_item, $title, $list, $dict, $filename);
@@ -1045,8 +1001,7 @@ class AppBaseController extends BaseController
      * @param $id
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    protected function export_list($request, $dataset, $fields = [], $where = [])
-    {
+    protected function export_list($request, $dataset, $fields = [], $where = []) {
         $request[EXPORT_HTTP_CODE[0]] = '1';
         return $this->__index($request, $dataset, $fields, $where);
     }
@@ -1054,46 +1009,39 @@ class AppBaseController extends BaseController
     // ----------------------------------------------------------
 
     // 新增之前
-    protected function before_store($request, $dataset)
-    {
+    protected function before_store($request, $dataset) {
         return $this->before_update($request, $dataset, 0);
     }
 
     // 新增之后
-    protected function after_store($request, $dataset, $id)
-    {
+    protected function after_store($request, $dataset, $id) {
         return $this->after_update($request, $dataset, $id);
     }
 
     //更新之前
-    protected function before_update($request, $dataset, $id)
-    {
+    protected function before_update($request, $dataset, $id) {
         return true;
     }
 
     //更新之后
-    protected function after_update($request, $dataset, $id)
-    {
+    protected function after_update($request, $dataset, $id) {
         return true;
     }
 
     //删除之前
-    protected function before_destroy($request, $dataset, $id)
-    {
+    protected function before_destroy($request, $dataset, $id) {
         return true;
     }
 
     //删除之后
-    protected function after_destroy($request, $dataset, $id)
-    {
+    protected function after_destroy($request, $dataset, $id) {
         return true;
     }
 
     /**
      * 获取工单编号
      */
-    protected function get_order_no()
-    {
+    protected function get_order_no() {
         $res = DB::select('select func_order_no() as no;');
         if ($res && count($res) > 0) {
             return $res[0]->no;
@@ -1106,8 +1054,7 @@ class AppBaseController extends BaseController
      *
      * @return array
      */
-    protected function getCurrentAction()
-    {
+    protected function getCurrentAction() {
         $action = Route::current()->getActionName();
         list($class, $method) = explode('@', $action);
 
@@ -1119,8 +1066,7 @@ class AppBaseController extends BaseController
     /**
      * 上传文件
      */
-    protected function uploadFile($request, $file)
-    {
+    protected function uploadFile($request, $file, $imgZip = false, $isOriginalName = false) {
         $result = [];
         $file = $request->file($file);
         // 文件是否上传成功
@@ -1148,8 +1094,9 @@ class AppBaseController extends BaseController
             $bool = Storage::disk(APP_UPLOAD_DRIVER)->put($filename, file_get_contents($realPath));
             if ($bool) {
                 $result = [
+                    'uid' => time() . '_' . mt_rand(),
                     'url' => $filename,
-                    'name' => $realname,
+                    'name' => $isOriginalName ? $originalName : $realname,
                     'type' => $type,
                     'size' => $size,
                     'status' => 1,
@@ -1161,10 +1108,20 @@ class AppBaseController extends BaseController
     }
 
     /**
+     * 上传照片文件
+     * @param $request
+     * @param $file
+     * @return array
+     */
+    protected function uploadImageFile($request, $file) {
+        return $this->uploadFile($request, $file, true);
+    }
+
+
+    /**
      * 数据导入
      */
-    protected function importExcelFile($request, $file)
-    {
+    protected function importExcelFile($request, $file) {
         $list = [];
         $obj = Storage::disk(APP_UPLOAD_DRIVER);
         if ($obj->exists($file)) {
@@ -1173,6 +1130,18 @@ class AppBaseController extends BaseController
                 $list = $sheet->toArray();
                 $obj->delete($file);
             }
+        }
+        return $list;
+    }
+
+    public function importByRequest($request, $key = 'file') {
+        $list = array();
+        if ($request->hasFile($key)) {
+            $file = $request->file($key);
+            $ext = $file->getClientOriginalExtension();
+            $fileName = date('YmdHmis') . "." . $ext;
+            $file->move(APP_UPLOAD_DRIVER . "/import/", $fileName);
+            $list = $this->importExcelFile($request, $fileName);
         }
         return $list;
     }
